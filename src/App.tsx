@@ -17,7 +17,8 @@ import Settings from "./pages/Settings";
 import Library from "./pages/Library";
 import Clients from "./pages/Clients";
 import ClientDashboard from "./pages/ClientDashboard";
-import AdminClientView from "./pages/AdminClientView"; // Importar o novo componente
+import AdminClientView from "./pages/AdminClientView";
+import ClientBoards from "./pages/ClientBoards"; // Importar o novo componente ClientBoards
 import React from "react";
 
 const queryClient = new QueryClient();
@@ -150,6 +151,16 @@ const AppContent = () => {
                   <h1 className="text-4xl font-bold mb-4">Minhas Playlists (Cliente)</h1>
                   <p className="text-xl text-gray-300">Aqui o cliente verá suas playlists atribuídas.</p>
                 </div>
+              </ClientDashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/client-boards" // Nova rota para Quadros
+          element={
+            <ProtectedRoute allowedRoles={['client']}>
+              <ClientDashboardLayout>
+                <ClientBoards />
               </ClientDashboardLayout>
             </ProtectedRoute>
           }

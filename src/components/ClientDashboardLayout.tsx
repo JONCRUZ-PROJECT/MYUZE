@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, ListMusic, BarChart2, Settings, LogOut, Menu, LayoutDashboard, User } from 'lucide-react';
+import { Home, ListMusic, BarChart2, Settings, LogOut, Menu, LayoutDashboard, User, LayoutGrid } from 'lucide-react'; // Importar LayoutGrid para o ícone de Quadros
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useMyuze } from '@/context/MyuzeContext';
@@ -15,9 +15,10 @@ interface ClientDashboardLayoutProps {
 
 const navItems = [
   { name: 'Dashboard', path: '/client-dashboard', icon: LayoutDashboard },
-  { name: 'Minhas Playlists', path: '/client-playlists', icon: ListMusic }, // Exemplo de rota para cliente
-  { name: 'Relatórios', path: '/client-reports', icon: BarChart2 }, // Exemplo de rota para cliente
-  { name: 'Configurações', path: '/client-settings', icon: Settings }, // Exemplo de rota para cliente
+  { name: 'Minhas Playlists', path: '/client-playlists', icon: ListMusic },
+  { name: 'Quadros', path: '/client-boards', icon: LayoutGrid }, // Novo item de navegação
+  { name: 'Relatórios', path: '/client-reports', icon: BarChart2 },
+  { name: 'Configurações', path: '/client-settings', icon: Settings },
 ];
 
 const ClientDashboardLayout = ({ children }: ClientDashboardLayoutProps) => {
