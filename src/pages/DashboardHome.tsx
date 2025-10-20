@@ -1,14 +1,13 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useMyuze } from '@/context/MyuzeContext';
-import { Users, ListMusic, Clock, Store } from 'lucide-react'; // Reintroduced Store icon
+import { Users, ListMusic, Clock } from 'lucide-react'; // Removed Store icon
 
 const DashboardHome = () => {
-  const { playlists, users, playbackLogs, stores } = useMyuze(); // Reintroduced stores
+  const { playlists, users, playbackLogs } = useMyuze(); // Removed stores
 
   const totalActiveCompanies = users.length; // Assuming each user represents a company
   const totalPlaylists = playlists.length;
-  const installationsConnected = stores.filter(store => store.status === 'online').length; // Reintroduced installations connected
 
   // Calculate total playback hours (simplified for MVP)
   const totalPlaybackSeconds = playbackLogs.reduce((sum, log) => {
@@ -44,16 +43,7 @@ const DashboardHome = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-myuze-gray-translucent text-myuze-white border-none shadow-xl backdrop-blur-sm">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-300">Instalações Conectadas</CardTitle>
-            <Store className="h-5 w-5 text-myuze-purple" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{installationsConnected}</div>
-            <p className="text-xs text-gray-400">Instalações ativas</p>
-          </CardContent>
-        </Card>
+        {/* Removed Installations Connected card */}
 
         <Card className="bg-myuze-gray-translucent text-myuze-white border-none shadow-xl backdrop-blur-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

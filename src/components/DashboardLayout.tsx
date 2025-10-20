@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, ListMusic, BarChart2, Settings, LogOut, Menu, BookOpen, LayoutDashboard, Store } from 'lucide-react'; // Added Store icon
+import { Home, ListMusic, BarChart2, Settings, LogOut, Menu, BookOpen, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useMyuze } from '@/context/MyuzeContext';
@@ -17,7 +17,7 @@ const navItems = [
   { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
   { name: 'Biblioteca', path: '/library', icon: BookOpen },
   { name: 'Playlists', path: '/playlists', icon: ListMusic },
-  { name: 'Instalações', path: '/installations', icon: Store }, // Reintroduced 'Instalações' item
+  // 'Instalações' item removed
   { name: 'Relatórios', path: '/reports', icon: BarChart2 },
   { name: 'Configurações', path: '/settings', icon: Settings },
 ];
