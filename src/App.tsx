@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import LandingPage from "./pages/LandingPage"; // Renamed from Index
+import LandingPage from "./pages/LandingPage";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import { MyuzeProvider, useMyuze } from "./context/MyuzeContext";
@@ -15,7 +15,6 @@ import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import Library from "./pages/Library";
 import Clients from "./pages/Clients";
-import Stores from "./pages/Stores"; // Updated import from Installations to Stores
 import React from "react";
 
 const queryClient = new QueryClient();
@@ -66,16 +65,7 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/stores" // Updated route from /installations to /stores
-          element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <Stores />
-              </DashboardLayout>
-            </ProtectedRoute>
-          }
-        />
+        {/* Removed /stores route */}
         <Route
           path="/library"
           element={

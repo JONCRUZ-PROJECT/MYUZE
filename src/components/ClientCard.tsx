@@ -10,25 +10,24 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { User, Mail, Phone, MoreVertical, Edit, Trash2, Plus } from 'lucide-react';
+import { User, Mail, Phone, MoreVertical, Edit, Trash2 } from 'lucide-react'; // Removed Plus icon
 import { useMyuze } from '@/context/MyuzeContext';
 import { Client } from '@/lib/data';
 import { toast } from 'sonner';
-import CreateStoreDialog from './CreateStoreDialog'; // Import the renamed dialog
+// Removed import CreateStoreDialog
 
 interface ClientCardProps {
   client: Client;
 }
 
 const ClientCard = ({ client }: ClientCardProps) => {
-  const { deleteClient, updateClient, stores } = useMyuze();
-  const clientStores = stores.filter(store => store.clientId === client.id);
+  const { deleteClient, updateClient } = useMyuze(); // Removed stores
+  // Removed clientStores calculation
 
   const handleDelete = () => {
-    if (window.confirm(`Tem certeza que deseja excluir o cliente "${client.name}"? Todas as lojas associadas também serão removidas.`)) {
+    if (window.confirm(`Tem certeza que deseja excluir o cliente "${client.name}"?`)) {
       deleteClient(client.id);
-      // In a real app, you'd also delete associated stores here
-      toast.success(`Cliente "${client.name}" e suas lojas foram excluídos.`);
+      toast.success(`Cliente "${client.name}" foi excluído.`);
     }
   };
 
@@ -64,12 +63,7 @@ const ClientCard = ({ client }: ClientCardProps) => {
               <Edit className="mr-2 h-4 w-4" /> Editar Cliente
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-myuze-purple/50" />
-            <CreateStoreDialog clientId={client.id}>
-              <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer hover:bg-myuze-purple/20">
-                <Plus className="mr-2 h-4 w-4" /> Adicionar Loja
-              </DropdownMenuItem>
-            </CreateStoreDialog>
-            <DropdownMenuSeparator className="bg-myuze-purple/50" />
+            {/* Removed CreateStoreDialog trigger */}
             <DropdownMenuItem onClick={handleDelete} className="text-red-400 cursor-pointer hover:bg-red-400/20 hover:text-red-300">
               <Trash2 className="mr-2 h-4 w-4" /> Excluir Cliente
             </DropdownMenuItem>
@@ -77,10 +71,7 @@ const ClientCard = ({ client }: ClientCardProps) => {
         </DropdownMenu>
       </CardHeader>
       <CardContent className="p-0 mt-4">
-        <p className="text-sm text-gray-400">
-          Lojas associadas: <span className="font-semibold text-myuze-white">{clientStores.length}</span>
-        </p>
-        {/* Future: List of associated stores */}
+        {/* Removed reference to associated stores */}
       </CardContent>
     </Card>
   );

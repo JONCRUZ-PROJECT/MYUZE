@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { initialMyuzeState, User, Playlist, Song, PlaybackLog, Client, Store } from '@/lib/data'; // Added Client and Store import
+import { initialMyuzeState, User, Playlist, Song, PlaybackLog, Client } from '@/lib/data'; // Removed Store import
 import { saveUserToLocalStorage, getUserFromLocalStorage, removeUserFromLocalStorage } from '@/lib/auth';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
@@ -9,7 +9,7 @@ interface MyuzeContextType {
   clients: Client[];
   playlists: Playlist[];
   songs: Song[];
-  stores: Store[]; // Added stores
+  // Removed stores
   playbackLogs: PlaybackLog[];
   currentUser: User | null;
   login: (email: string, passwordHash: string) => boolean;
@@ -21,12 +21,10 @@ interface MyuzeContextType {
   addClient: (client: Omit<Client, 'id' | 'userId'>) => void;
   updateClient: (id: string, updatedClient: Partial<Client>) => void;
   deleteClient: (id: string) => void;
-  addStore: (store: Omit<Store, 'id' | 'status' | 'currentPlaylistId' | 'lastPlayedSong' | 'playbackStartTime'>) => void; // Added addStore
-  updateStore: (id: string, updatedStore: Partial<Store>) => void; // Added updateStore
-  deleteStore: (id: string) => void; // Added deleteStore
+  // Removed addStore, updateStore, deleteStore
   getClientById: (id: string) => Client | undefined;
   getPlaylistById: (id: string) => Playlist | undefined;
-  getStoreById: (id: string) => Store | undefined; // Added getStoreById
+  // Removed getStoreById
   getSongsByIds: (ids: string[]) => Song[];
   addPlaybackLog: (log: Omit<PlaybackLog, 'id'>) => void;
   addMediaItem: (mediaItem: Omit<Song, 'id' | 'fileUrl'>, file: File) => void;
@@ -39,7 +37,7 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
   const [clients, setClients] = useState<Client[]>(initialMyuzeState.clients);
   const [playlists, setPlaylists] = useState<Playlist[]>(initialMyuzeState.playlists);
   const [songs, setSongs] = useState<Song[]>(initialMyuzeState.songs);
-  const [stores, setStores] = useState<Store[]>(initialMyuzeState.stores); // Added stores state
+  // Removed stores state
   const [playbackLogs, setPlaybackLogs] = useState<PlaybackLog[]>(initialMyuzeState.playbackLogs);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
@@ -146,42 +144,11 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
     toast.success('Cliente excluído.');
   };
 
-  const addStore = (storeData: Omit<Store, 'id' | 'status' | 'currentPlaylistId' | 'lastPlayedSong' | 'playbackStartTime'>) => {
-    if (!currentUser) {
-      toast.error('Você precisa estar logado para adicionar uma loja.');
-      return;
-    }
-    const newStore: Store = {
-      ...storeData,
-      id: uuidv4(),
-      status: 'pending', // Default status
-      currentPlaylistId: null,
-      lastPlayedSong: null,
-      playbackStartTime: null,
-    };
-    setStores(prev => [...prev, newStore]);
-    toast.success(`Loja "${newStore.name}" adicionada!`);
-  };
-
-  const updateStore = (id: string, updatedStoreData: Partial<Store>) => {
-    setStores(prev =>
-      prev.map(s =>
-        s.id === id
-          ? { ...s, ...updatedStoreData }
-          : s
-      )
-    );
-    toast.success(`Loja atualizada!`);
-  };
-
-  const deleteStore = (id: string) => {
-    setStores(prev => prev.filter(s => s.id !== id));
-    toast.success('Loja excluída.');
-  };
+  // Removed addStore, updateStore, deleteStore functions
 
   const getClientById = (id: string) => clients.find(c => c.id === id);
   const getPlaylistById = (id: string) => playlists.find(p => p.id === id);
-  const getStoreById = (id: string) => stores.find(s => s.id === id);
+  // Removed getStoreById
 
   const addPlaybackLog = (log: Omit<PlaybackLog, 'id'>) => {
     const newLog: PlaybackLog = { ...log, id: uuidv4() };
@@ -211,7 +178,7 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
         clients,
         playlists,
         songs,
-        stores,
+        // Removed stores
         playbackLogs,
         currentUser,
         login,
@@ -223,12 +190,10 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
         addClient,
         updateClient,
         deleteClient,
-        addStore,
-        updateStore,
-        deleteStore,
+        // Removed addStore, updateStore, deleteStore
         getClientById,
         getPlaylistById,
-        getStoreById,
+        // Removed getStoreById
         getSongsByIds,
         addPlaybackLog,
         addMediaItem,
