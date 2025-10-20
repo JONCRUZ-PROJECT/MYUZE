@@ -49,7 +49,7 @@ const CreateStoreDialog = ({ children, clientId }: CreateStoreDialogProps) => {
           <DialogTitle className="text-myuze-white">Adicionar Nova Loja</DialogTitle>
           <DialogDescription className="text-gray-400">
             Preencha os detalhes para adicionar uma nova loja.
-          </CardDescription>
+          </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           {!clientId && ( // Only show client selection if clientId is not provided via prop
