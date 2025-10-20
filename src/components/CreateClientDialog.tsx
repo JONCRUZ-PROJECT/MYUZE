@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { X } from 'lucide-react';
+import { X, Image } from 'lucide-react';
 import { useMyuze } from '@/context/MyuzeContext';
 import { toast } from 'sonner';
 
@@ -19,6 +19,20 @@ const CreateClientDialog = ({ children }: CreateClientDialogProps) => {
   const [name, setName] = useState('');
   const [contactEmail, setContactEmail] = useState('');
   const [contactPhone, setContactPhone] = useState('');
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | undefined>(undefined);
+
+  const handleLogoFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      setLogoFile(file);
+      setLogoPreviewUrl(URL.createObjectURL(file));
+      toast.info(`Logo "${file.name}" selecionado.`);
+    } else {
+      setLogoFile(null);
+      setLogoPreviewUrl(undefined);
+    }
+  };
 
   const handleSubmit = () => {
     if (!name || !contactEmail) {
@@ -26,11 +40,13 @@ const CreateClientDialog = ({ children }: CreateClientDialogProps) => {
       return;
     }
 
-    addClient({ name, contactEmail, contactPhone: contactPhone || undefined });
+    addClient({ name, contactEmail, contactPhone: contactPhone || undefined, logoUrl: logoPreviewUrl });
     setIsOpen(false);
     setName('');
     setContactEmail('');
     setContactPhone('');
+    setLogoFile(null);
+    setLogoPreviewUrl(undefined);
   };
 
   return (
@@ -81,6 +97,21 @@ const CreateClientDialog = ({ children }: CreateClientDialogProps) => {
               placeholder="(XX) XXXXX-XXXX"
               className="bg-myuze-black/50 border-myuze-purple text-myuze-white placeholder:text-gray-400"
             />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="logo-upload" className="text-myuze-white">
+              Logo da Empresa (opcional)
+            </Label>
+            <Input
+              id="logo-upload"
+              type="file"
+              accept="image/*"
+              onChange={handleLogoFileChange}
+              className="bg-myuze-black/50 border-myuze-purple text-myuze-white file:text-myuze-white file:bg-myuze-purple hover:file:bg-myuze-purple/80 file:border-none"
+            />
+            {logoPreviewUrl && (
+              <img src={logoPreviewUrl} alt="Prévia do Logo" className="w-24 h-24 object-contain rounded-md mt-2 border border-myuze-purple/50 p-1" />
+            )}
           </div>
         </div>
         <DialogFooter className="flex justify-end gap-2">

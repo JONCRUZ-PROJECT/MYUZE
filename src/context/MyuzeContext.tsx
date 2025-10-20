@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { initialMyuzeState, User, Playlist, Song, PlaybackLog, Client } from '@/lib/data'; // Removed Store import
+import { initialMyuzeState, User, Playlist, Song, PlaybackLog, Client } from '@/lib/data';
 import { saveUserToLocalStorage, getUserFromLocalStorage, removeUserFromLocalStorage } from '@/lib/auth';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';

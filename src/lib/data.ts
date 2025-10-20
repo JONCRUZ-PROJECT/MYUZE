@@ -13,6 +13,7 @@ export interface Client {
   name: string; // Client company name
   contactEmail: string;
   contactPhone?: string;
+  logoUrl?: string; // Adicionado para o logo da empresa
   // You can add more fields here like address, industry, etc.
 }
 
@@ -75,12 +76,14 @@ const mockClients: Client[] = [
     name: 'Café Central Ltda.',
     contactEmail: 'contato@cafecentral.com.br',
     contactPhone: '(11) 98765-4321',
+    logoUrl: '/public/placeholder.svg', // Exemplo de logo
   },
   {
     id: uuidv4(),
     userId: mockUsers[0].id,
     name: 'Boutique Fashion',
     contactEmail: 'fashion@boutique.com',
+    logoUrl: '/public/placeholder.svg', // Exemplo de logo
   },
 ];
 
