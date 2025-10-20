@@ -16,6 +16,17 @@ export interface Client {
   // You can add more fields here like address, industry, etc.
 }
 
+export interface Store {
+  id: string;
+  clientId: string; // The client this store belongs to
+  name: string;
+  location: string;
+  status: 'online' | 'offline' | 'pending';
+  currentPlaylistId: string | null;
+  lastPlayedSong: string | null; // ID of the last song played
+  playbackStartTime: string | null; // ISO string of when current song started
+}
+
 export interface Playlist {
   id: string;
   userId: string;
@@ -52,6 +63,7 @@ export interface Song {
 
 export interface PlaybackLog {
   id: string;
+  storeId: string; // Reintroduced storeId
   playlistId: string;
   songId: string;
   timestamp: string; // ISO string
@@ -133,11 +145,45 @@ const mockPlaylists: Playlist[] = [
   },
 ];
 
+const mockStores: Store[] = [
+  {
+    id: uuidv4(),
+    clientId: mockClients[0].id,
+    name: 'Café Central - Unidade Centro',
+    location: 'Rua da Consolação, 123',
+    status: 'online',
+    currentPlaylistId: mockPlaylists[0].id,
+    lastPlayedSong: mockPlaylists[0].songs[0].id,
+    playbackStartTime: new Date().toISOString(),
+  },
+  {
+    id: uuidv4(),
+    clientId: mockClients[0].id,
+    name: 'Café Central - Unidade Paulista',
+    location: 'Av. Paulista, 1000',
+    status: 'offline',
+    currentPlaylistId: null,
+    lastPlayedSong: null,
+    playbackStartTime: null,
+  },
+  {
+    id: uuidv4(),
+    clientId: mockClients[1].id,
+    name: 'Boutique Fashion - Loja Principal',
+    location: 'Rua Oscar Freire, 500',
+    status: 'pending',
+    currentPlaylistId: null,
+    lastPlayedSong: null,
+    playbackStartTime: null,
+  },
+];
+
 export const initialMyuzeState = {
   users: mockUsers,
-  clients: mockClients, // Added clients to initial state
+  clients: mockClients,
   playlists: mockPlaylists,
   songs: mockSongs, // All available songs, including ads
+  stores: mockStores, // Added stores to initial state
   playbackLogs: [] as PlaybackLog[],
   currentUser: null as User | null,
 };

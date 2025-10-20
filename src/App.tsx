@@ -14,7 +14,8 @@ import Player from "./pages/Player";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import Library from "./pages/Library";
-import Clients from "./pages/Clients"; // Added Clients import
+import Clients from "./pages/Clients";
+import Installations from "./pages/Installations"; // Added Installations import
 import React from "react";
 
 const queryClient = new QueryClient();
@@ -56,11 +57,21 @@ const AppContent = () => {
           }
         />
         <Route
-          path="/clients" // Added /clients route
+          path="/clients"
           element={
             <ProtectedRoute>
               <DashboardLayout>
                 <Clients />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/installations" // Added /installations route
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Installations />
               </DashboardLayout>
             </ProtectedRoute>
           }

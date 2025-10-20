@@ -1,14 +1,15 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useMyuze } from '@/context/MyuzeContext';
-import { Users, ListMusic, Clock } from 'lucide-react'; // Reintroduced Store icon
+import { Users, ListMusic, Clock, Wifi } from 'lucide-react'; // Added Wifi icon
 
 const DashboardHome = () => {
-  const { playlists, users, playbackLogs, clients } = useMyuze(); // Added clients
+  const { playlists, users, playbackLogs, clients, stores } = useMyuze(); // Added stores
 
   const totalActiveCompanies = users.length; // Assuming each user represents a company
   const totalPlaylists = playlists.length;
-  const totalClients = clients.length; // New metric for total clients
+  const totalClients = clients.length;
+  const totalInstallations = stores.length; // New metric for total installations
 
   // Calculate total playback hours (simplified for MVP)
   const totalPlaybackSeconds = playbackLogs.reduce((sum, log) => {
@@ -21,7 +22,7 @@ const DashboardHome = () => {
     <div className="space-y-8">
       <h1 className="text-4xl font-bold text-myuze-white mb-6">Dashboard</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"> {/* Adjusted grid columns */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card className="bg-myuze-gray-translucent text-myuze-white border-none shadow-xl backdrop-blur-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-300">Empresas Ativas</CardTitle>
@@ -52,6 +53,17 @@ const DashboardHome = () => {
           <CardContent>
             <div className="text-3xl font-bold">{totalClients}</div>
             <p className="text-xs text-gray-400">Clientes cadastrados</p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-myuze-gray-translucent text-myuze-white border-none shadow-xl backdrop-blur-sm">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-300">Instalações Conectadas</CardTitle>
+            <Wifi className="h-5 w-5 text-myuze-purple" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{totalInstallations}</div>
+            <p className="text-xs text-gray-400">Instalações registradas</p>
           </CardContent>
         </Card>
 
