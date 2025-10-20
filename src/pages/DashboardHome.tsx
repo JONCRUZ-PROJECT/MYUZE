@@ -1,15 +1,15 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useMyuze } from '@/context/MyuzeContext';
-import { Users, ListMusic, Clock, Wifi } from 'lucide-react'; // Added Wifi icon
+import { Users, ListMusic, Clock, Wifi } from 'lucide-react';
 
 const DashboardHome = () => {
-  const { playlists, users, playbackLogs, clients, stores } = useMyuze(); // Added stores
+  const { playlists, users, playbackLogs, clients, stores } = useMyuze();
 
-  const totalActiveCompanies = users.length; // Assuming each user represents a company
+  const totalActiveCompanies = users.length;
   const totalPlaylists = playlists.length;
   const totalClients = clients.length;
-  const totalInstallations = stores.length; // New metric for total installations
+  const totalStores = stores.length; // Updated from totalInstallations to totalStores
 
   // Calculate total playback hours (simplified for MVP)
   const totalPlaybackSeconds = playbackLogs.reduce((sum, log) => {
@@ -58,12 +58,12 @@ const DashboardHome = () => {
 
         <Card className="bg-myuze-gray-translucent text-myuze-white border-none shadow-xl backdrop-blur-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-300">Instalações Conectadas</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-300">Lojas Conectadas</CardTitle>
             <Wifi className="h-5 w-5 text-myuze-purple" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{totalInstallations}</div>
-            <p className="text-xs text-gray-400">Instalações registradas</p>
+            <div className="text-3xl font-bold">{totalStores}</div>
+            <p className="text-xs text-gray-400">Lojas registradas</p>
           </CardContent>
         </Card>
 

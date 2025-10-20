@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, ListMusic, BarChart2, Settings, LogOut, Menu, BookOpen, LayoutDashboard, Users, Wifi } from 'lucide-react'; // Added Users and Wifi icons
+import { Home, ListMusic, BarChart2, Settings, LogOut, Menu, BookOpen, LayoutDashboard, Users, Wifi } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useMyuze } from '@/context/MyuzeContext';
@@ -18,7 +18,7 @@ const navItems = [
   { name: 'Biblioteca', path: '/library', icon: BookOpen },
   { name: 'Playlists', path: '/playlists', icon: ListMusic },
   { name: 'Clientes', path: '/clients', icon: Users },
-  { name: 'Instalações', path: '/installations', icon: Wifi }, // Added 'Instalações' item
+  { name: 'Lojas', path: '/stores', icon: Wifi }, // Updated 'Instalações' to 'Lojas' and path to /stores
   { name: 'Relatórios', path: '/reports', icon: BarChart2 },
   { name: 'Configurações', path: '/settings', icon: Settings },
 ];

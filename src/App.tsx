@@ -15,7 +15,7 @@ import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import Library from "./pages/Library";
 import Clients from "./pages/Clients";
-import Installations from "./pages/Installations"; // Added Installations import
+import Stores from "./pages/Stores"; // Updated import from Installations to Stores
 import React from "react";
 
 const queryClient = new QueryClient();
@@ -67,11 +67,11 @@ const AppContent = () => {
           }
         />
         <Route
-          path="/installations" // Added /installations route
+          path="/stores" // Updated route from /installations to /stores
           element={
             <ProtectedRoute>
               <DashboardLayout>
-                <Installations />
+                <Stores />
               </DashboardLayout>
             </ProtectedRoute>
           }

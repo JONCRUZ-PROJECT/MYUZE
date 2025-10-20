@@ -9,12 +9,12 @@ import { X } from 'lucide-react';
 import { useMyuze } from '@/context/MyuzeContext';
 import { toast } from 'sonner';
 
-interface CreateInstallationDialogProps {
+interface CreateStoreDialogProps {
   children: React.ReactNode;
   clientId: string;
 }
 
-const CreateInstallationDialog = ({ children, clientId }: CreateInstallationDialogProps) => {
+const CreateStoreDialog = ({ children, clientId }: CreateStoreDialogProps) => {
   const { addStore } = useMyuze();
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState('');
@@ -22,7 +22,7 @@ const CreateInstallationDialog = ({ children, clientId }: CreateInstallationDial
 
   const handleSubmit = () => {
     if (!name || !location) {
-      toast.error('Por favor, preencha o nome e a localização da instalação.');
+      toast.error('Por favor, preencha o nome e a localização da loja.');
       return;
     }
 
@@ -37,15 +37,15 @@ const CreateInstallationDialog = ({ children, clientId }: CreateInstallationDial
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px] bg-myuze-black text-myuze-white border-myuze-purple">
         <DialogHeader>
-          <DialogTitle className="text-myuze-white">Adicionar Nova Instalação</DialogTitle>
+          <DialogTitle className="text-myuze-white">Adicionar Nova Loja</DialogTitle>
           <DialogDescription className="text-gray-400">
-            Preencha os detalhes para adicionar uma nova instalação para este cliente.
+            Preencha os detalhes para adicionar uma nova loja para este cliente.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="name" className="text-myuze-white">
-              Nome da Instalação *
+              Nome da Loja *
             </Label>
             <Input
               id="name"
@@ -81,4 +81,4 @@ const CreateInstallationDialog = ({ children, clientId }: CreateInstallationDial
   );
 };
 
-export default CreateInstallationDialog;
+export default CreateStoreDialog;

@@ -148,7 +148,7 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
 
   const addStore = (storeData: Omit<Store, 'id' | 'status' | 'currentPlaylistId' | 'lastPlayedSong' | 'playbackStartTime'>) => {
     if (!currentUser) {
-      toast.error('Você precisa estar logado para adicionar uma instalação.');
+      toast.error('Você precisa estar logado para adicionar uma loja.');
       return;
     }
     const newStore: Store = {
@@ -160,7 +160,7 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
       playbackStartTime: null,
     };
     setStores(prev => [...prev, newStore]);
-    toast.success(`Instalação "${newStore.name}" adicionada!`);
+    toast.success(`Loja "${newStore.name}" adicionada!`);
   };
 
   const updateStore = (id: string, updatedStoreData: Partial<Store>) => {
@@ -171,17 +171,17 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
           : s
       )
     );
-    toast.success(`Instalação atualizada!`);
+    toast.success(`Loja atualizada!`);
   };
 
   const deleteStore = (id: string) => {
     setStores(prev => prev.filter(s => s.id !== id));
-    toast.success('Instalação excluída.');
+    toast.success('Loja excluída.');
   };
 
   const getClientById = (id: string) => clients.find(c => c.id === id);
   const getPlaylistById = (id: string) => playlists.find(p => p.id === id);
-  const getStoreById = (id: string) => stores.find(s => s.id === id); // Added getStoreById
+  const getStoreById = (id: string) => stores.find(s => s.id === id);
 
   const addPlaybackLog = (log: Omit<PlaybackLog, 'id'>) => {
     const newLog: PlaybackLog = { ...log, id: uuidv4() };
@@ -211,7 +211,7 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
         clients,
         playlists,
         songs,
-        stores, // Added stores to context value
+        stores,
         playbackLogs,
         currentUser,
         login,
@@ -223,12 +223,12 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
         addClient,
         updateClient,
         deleteClient,
-        addStore, // Added addStore to context value
-        updateStore, // Added updateStore to context value
-        deleteStore, // Added deleteStore to context value
+        addStore,
+        updateStore,
+        deleteStore,
         getClientById,
         getPlaylistById,
-        getStoreById, // Added getStoreById to context value
+        getStoreById,
         getSongsByIds,
         addPlaybackLog,
         addMediaItem,

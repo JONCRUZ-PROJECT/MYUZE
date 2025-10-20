@@ -17,24 +17,24 @@ import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 
-interface InstallationCardProps {
+interface StoreCardProps {
   store: Store;
 }
 
-const InstallationCard = ({ store }: InstallationCardProps) => {
+const StoreCard = ({ store }: StoreCardProps) => {
   const { deleteStore, updateStore, getPlaylistById, getClientById } = useMyuze();
   const currentPlaylist = store.currentPlaylistId ? getPlaylistById(store.currentPlaylistId) : null;
   const client = getClientById(store.clientId);
 
   const handleDelete = () => {
-    if (window.confirm(`Tem certeza que deseja excluir a instalação "${store.name}"?`)) {
+    if (window.confirm(`Tem certeza que deseja excluir a loja "${store.name}"?`)) {
       deleteStore(store.id);
     }
   };
 
   const handleEdit = () => {
-    toast.info(`Funcionalidade de edição para a instalação "${store.name}" será implementada.`);
-    // This would typically open an EditInstallationDialog
+    toast.info(`Funcionalidade de edição para a loja "${store.name}" será implementada.`);
+    // This would typically open an EditStoreDialog
   };
 
   const getStatusBadge = (status: Store['status']) => {
@@ -112,4 +112,4 @@ const InstallationCard = ({ store }: InstallationCardProps) => {
   );
 };
 
-export default InstallationCard;
+export default StoreCard;

@@ -10,25 +10,25 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { User, Mail, Phone, MoreVertical, Edit, Trash2, Plus } from 'lucide-react'; // Added Plus icon
+import { User, Mail, Phone, MoreVertical, Edit, Trash2, Plus } from 'lucide-react';
 import { useMyuze } from '@/context/MyuzeContext';
 import { Client } from '@/lib/data';
 import { toast } from 'sonner';
-import CreateInstallationDialog from './CreateInstallationDialog'; // Import the new dialog
+import CreateStoreDialog from './CreateStoreDialog'; // Import the renamed dialog
 
 interface ClientCardProps {
   client: Client;
 }
 
 const ClientCard = ({ client }: ClientCardProps) => {
-  const { deleteClient, updateClient, stores } = useMyuze(); // Added stores to get client's installations
-  const clientInstallations = stores.filter(store => store.clientId === client.id);
+  const { deleteClient, updateClient, stores } = useMyuze();
+  const clientStores = stores.filter(store => store.clientId === client.id);
 
   const handleDelete = () => {
-    if (window.confirm(`Tem certeza que deseja excluir o cliente "${client.name}"? Todas as instalações associadas também serão removidas.`)) {
+    if (window.confirm(`Tem certeza que deseja excluir o cliente "${client.name}"? Todas as lojas associadas também serão removidas.`)) {
       deleteClient(client.id);
       // In a real app, you'd also delete associated stores here
-      toast.success(`Cliente "${client.name}" e suas instalações foram excluídos.`);
+      toast.success(`Cliente "${client.name}" e suas lojas foram excluídos.`);
     }
   };
 
@@ -64,11 +64,11 @@ const ClientCard = ({ client }: ClientCardProps) => {
               <Edit className="mr-2 h-4 w-4" /> Editar Cliente
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-myuze-purple/50" />
-            <CreateInstallationDialog clientId={client.id}>
+            <CreateStoreDialog clientId={client.id}>
               <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer hover:bg-myuze-purple/20">
-                <Plus className="mr-2 h-4 w-4" /> Adicionar Instalação
+                <Plus className="mr-2 h-4 w-4" /> Adicionar Loja
               </DropdownMenuItem>
-            </CreateInstallationDialog>
+            </CreateStoreDialog>
             <DropdownMenuSeparator className="bg-myuze-purple/50" />
             <DropdownMenuItem onClick={handleDelete} className="text-red-400 cursor-pointer hover:bg-red-400/20 hover:text-red-300">
               <Trash2 className="mr-2 h-4 w-4" /> Excluir Cliente
@@ -78,9 +78,9 @@ const ClientCard = ({ client }: ClientCardProps) => {
       </CardHeader>
       <CardContent className="p-0 mt-4">
         <p className="text-sm text-gray-400">
-          Instalações associadas: <span className="font-semibold text-myuze-white">{clientInstallations.length}</span>
+          Lojas associadas: <span className="font-semibold text-myuze-white">{clientStores.length}</span>
         </p>
-        {/* Future: List of associated installations */}
+        {/* Future: List of associated stores */}
       </CardContent>
     </Card>
   );
