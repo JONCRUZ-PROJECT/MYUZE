@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, Monitor, MapPin, ListMusic, Edit, Trash2 } from 'lucide-react';
+import { Plus, Monitor, MapPin, ListMusic, Edit, Trash2, PlayCircle } from 'lucide-react';
 import CreateBoardDialog from '@/components/CreateBoardDialog';
 import { useMyuze } from '@/context/MyuzeContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -14,6 +14,7 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
+import { Link } from 'react-router-dom'; // Importar Link
 
 const ClientBoards = () => {
   const { boards, playlists, currentUser, deleteBoard } = useMyuze();
@@ -78,11 +79,15 @@ const ClientBoards = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-0 mt-4">
-                <div className="flex items-center text-gray-300">
+                <div className="flex items-center text-gray-300 mb-4">
                   <ListMusic className="h-4 w-4 mr-2" />
                   <span className="font-medium">Tocando agora:</span> {getPlaylistName(board.playlistId)}
                 </div>
-                {/* Adicionar mais detalhes do quadro aqui, se necessário */}
+                <Link to={`/player-auth/${board.id}`}>
+                  <Button className="w-full bg-myuze-purple hover:bg-myuze-purple/80 text-myuze-white">
+                    <PlayCircle className="mr-2 h-4 w-4" /> Acessar Player
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           ))

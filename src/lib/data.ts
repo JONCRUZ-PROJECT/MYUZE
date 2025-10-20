@@ -67,6 +67,8 @@ export interface Board {
   name: string;
   location: string; // Ex: "Loja 1 - Entrada", "Praça de Alimentação"
   playlistId: string; // A playlist atribuída a este quadro
+  playerUsername: string; // Credencial de acesso ao player
+  playerPassword: string; // Credencial de acesso ao player
 }
 
 // --- Mock Data ---
@@ -175,6 +177,8 @@ const mockBoards: Board[] = [
     name: 'Tela Principal - Café',
     location: 'Balcão Principal',
     playlistId: mockPlaylists[1].id, // Café Relax
+    playerUsername: 'cafeplayer1',
+    playerPassword: 'playerpassword1',
   },
   {
     id: uuidv4(),
@@ -182,6 +186,8 @@ const mockBoards: Board[] = [
     name: 'Tela Secundária - Lounge',
     location: 'Área de Lounge',
     playlistId: mockPlaylists[1].id, // Café Relax
+    playerUsername: 'cafeplayer2',
+    playerPassword: 'playerpassword2',
   },
 ];
 

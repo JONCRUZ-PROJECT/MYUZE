@@ -11,14 +11,16 @@ import DashboardLayout from "./components/DashboardLayout";
 import ClientDashboardLayout from "./components/ClientDashboardLayout";
 import DashboardHome from "./pages/DashboardHome";
 import Playlists from "./pages/Playlists";
-import Player from "./pages/Player";
+import Player from "./pages/Player"; // Este é o player antigo, manter por enquanto
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import Library from "./pages/Library";
 import Clients from "./pages/Clients";
 import ClientDashboard from "./pages/ClientDashboard";
 import AdminClientView from "./pages/AdminClientView";
-import ClientBoards from "./pages/ClientBoards"; // Importar o novo componente ClientBoards
+import ClientBoards from "./pages/ClientBoards";
+import BoardPlayerAuth from "./pages/BoardPlayerAuth"; // Importar o novo componente de autenticação do player
+import BoardPlayer from "./pages/BoardPlayer"; // Importar o novo componente do player
 import React from "react";
 
 const queryClient = new QueryClient();
@@ -42,6 +44,22 @@ const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode;
 
   return <>{children}</>;
 };
+
+// PlayerProtectedRoute component to guard player routes
+const PlayerProtectedRoute = ({ children, boardId }: { children: React.ReactNode; boardId: string | undefined }) => {
+  const { currentBoardPlayer } = useMyuze();
+
+  if (!boardId) {
+    return <Navigate to="/client-boards" replace />; // Redireciona se não houver boardId
+  }
+
+  if (!currentBoardPlayer || currentBoardPlayer.id !== boardId) {
+    return <Navigate to={`/player-auth/${boardId}`} replace />;
+  }
+
+  return <>{children}</>;
+};
+
 
 const AppContent = () => {
   return (
@@ -156,7 +174,7 @@ const AppContent = () => {
           }
         />
         <Route
-          path="/client-boards" // Nova rota para Quadros
+          path="/client-boards"
           element={
             <ProtectedRoute allowedRoles={['client']}>
               <ClientDashboardLayout>
@@ -192,6 +210,16 @@ const AppContent = () => {
           }
         />
 
+        {/* Player Board Routes */}
+        <Route path="/player-auth/:boardId" element={<BoardPlayerAuth />} />
+        <Route
+          path="/player-board/:boardId"
+          element={
+            <PlayerProtectedRoute boardId={useParams().boardId}>
+              <BoardPlayer />
+            </PlayerProtectedRoute>
+          }
+        />
 
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />

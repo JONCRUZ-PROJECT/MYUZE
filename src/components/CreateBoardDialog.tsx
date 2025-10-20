@@ -6,9 +6,10 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { X } from 'lucide-react';
+import { X, Copy, Eye, EyeOff } from 'lucide-react';
 import { useMyuze } from '@/context/MyuzeContext';
 import { toast } from 'sonner';
+import { generateRandomPassword, slugify } from '@/lib/utils';
 
 interface CreateBoardDialogProps {
   children: React.ReactNode;
@@ -20,26 +21,56 @@ const CreateBoardDialog = ({ children }: CreateBoardDialogProps) => {
   const [name, setName] = useState('');
   const [location, setLocation] = useState('');
   const [selectedPlaylistId, setSelectedPlaylistId] = useState('');
+  const [playerUsername, setPlayerUsername] = useState('');
+  const [playerPassword, setPlayerPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   // Filter playlists relevant to the current client user
   const clientPlaylists = playlists.filter(p => p.userId === currentUser?.id);
 
+  // Effect to generate credentials when dialog opens or name changes
+  React.useEffect(() => {
+    if (isOpen) {
+      const generatedUsername = slugify(name || 'quadro') + Math.floor(Math.random() * 1000);
+      setPlayerUsername(generatedUsername);
+      setPlayerPassword(generateRandomPassword(10));
+    }
+  }, [isOpen, name]);
+
+  const handleCopyUsername = () => {
+    navigator.clipboard.writeText(playerUsername)
+      .then(() => toast.success('Usuário do player copiado!'))
+      .catch(() => toast.error('Falha ao copiar usuário.'));
+  };
+
+  const handleCopyPassword = () => {
+    navigator.clipboard.writeText(playerPassword)
+      .then(() => toast.success('Senha do player copiada!'))
+      .catch(() => toast.error('Falha ao copiar senha.'));
+  };
+
   const handleSubmit = () => {
-    if (!name || !location || !selectedPlaylistId) {
-      toast.error('Por favor, preencha todos os campos.');
+    if (!name || !location || !selectedPlaylistId || !playerUsername || !playerPassword) {
+      toast.error('Por favor, preencha todos os campos, incluindo as credenciais do player.');
       return;
     }
 
-    addBoard({
+    const success = addBoard({
       name,
       location,
       playlistId: selectedPlaylistId,
-    });
-    setIsOpen(false);
-    // Reset form fields
-    setName('');
-    setLocation('');
-    setSelectedPlaylistId('');
+    }, playerUsername, playerPassword);
+
+    if (success) {
+      setIsOpen(false);
+      // Reset form fields
+      setName('');
+      setLocation('');
+      setSelectedPlaylistId('');
+      setPlayerUsername('');
+      setPlayerPassword('');
+      setShowPassword(false);
+    }
   };
 
   return (
@@ -97,6 +128,50 @@ const CreateBoardDialog = ({ children }: CreateBoardDialogProps) => {
                 )}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2 border-t border-myuze-purple/50 pt-4 mt-4">
+            <h3 className="text-lg font-semibold text-myuze-white">Credenciais de Acesso ao Player</h3>
+            <p className="text-sm text-gray-400">Use estas credenciais para acessar o player de áudio deste quadro.</p>
+            <div className="space-y-2">
+              <Label htmlFor="player-username" className="text-myuze-white">
+                Usuário do Player *
+              </Label>
+              <div className="flex items-center space-x-2">
+                <Input
+                  id="player-username"
+                  type="text"
+                  value={playerUsername}
+                  onChange={(e) => setPlayerUsername(e.target.value)}
+                  placeholder="Usuário gerado automaticamente"
+                  className="flex-grow bg-myuze-black/50 border-myuze-purple text-myuze-white placeholder:text-gray-400"
+                />
+                <Button variant="ghost" size="icon" onClick={handleCopyUsername} className="text-myuze-purple hover:text-myuze-purple/80">
+                  <Copy className="h-5 w-5" />
+                </Button>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="player-password" className="text-myuze-white">
+                Senha do Player *
+              </Label>
+              <div className="flex items-center space-x-2">
+                <Input
+                  id="player-password"
+                  type={showPassword ? "text" : "password"}
+                  value={playerPassword}
+                  onChange={(e) => setPlayerPassword(e.target.value)}
+                  placeholder="Senha gerada automaticamente"
+                  className="flex-grow bg-myuze-black/50 border-myuze-purple text-myuze-white placeholder:text-gray-400"
+                />
+                <Button variant="ghost" size="icon" onClick={() => setShowPassword(!showPassword)} className="text-myuze-purple hover:text-myuze-purple/80">
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </Button>
+                <Button variant="ghost" size="icon" onClick={handleCopyPassword} className="text-myuze-purple hover:text-myuze-purple/80">
+                  <Copy className="h-5 w-5" />
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
         <DialogFooter className="flex justify-end gap-2">

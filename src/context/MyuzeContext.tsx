@@ -13,9 +13,12 @@ interface MyuzeContextType {
   playbackLogs: PlaybackLog[];
   boards: Board[]; // Adicionado
   currentUser: User | null;
+  currentBoardPlayer: Board | null; // Adicionado para o player
   login: (email: string, passwordHash: string) => boolean;
   register: (email: string, passwordHash: string) => boolean;
   logout: () => void;
+  playerLogin: (boardId: string, username: string, passwordHash: string) => boolean; // Adicionado
+  playerLogout: () => void; // Adicionado
   addPlaylist: (playlist: Omit<Playlist, 'id' | 'userId' | 'songs'>, selectedSongIds: string[]) => void;
   updatePlaylist: (id: string, updatedPlaylist: Omit<Playlist, 'id' | 'userId' | 'songs'>, selectedSongIds: string[]) => void;
   deletePlaylist: (id: string) => void;
@@ -28,7 +31,7 @@ interface MyuzeContextType {
   addPlaybackLog: (log: Omit<PlaybackLog, 'id'>) => void;
   addMediaItem: (mediaItem: Omit<Song, 'id' | 'fileUrl'>, file: File) => void;
   getClientUserByClientId: (clientId: string) => User | undefined;
-  addBoard: (boardData: Omit<Board, 'id' | 'clientId'>) => void; // Adicionado
+  addBoard: (boardData: Omit<Board, 'id' | 'clientId' | 'playerUsername' | 'playerPassword'>, playerUsername: string, playerPassword: string) => void; // Modificado
   getBoardById: (id: string) => Board | undefined; // Adicionado
   updateBoard: (id: string, updatedBoardData: Partial<Board>) => void; // Adicionado
   deleteBoard: (id: string) => void; // Adicionado
@@ -36,19 +39,28 @@ interface MyuzeContextType {
 
 const MyuzeContext = createContext<MyuzeContextType | undefined>(undefined);
 
-export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
+const PLAYER_AUTH_STORAGE_KEY = 'myuze_board_player_auth';
+
+export const MyuzeProvider = ({ children }: { ReactNode }) => {
   const [users, setUsers] = useState<User[]>(initialMyuzeState.users);
   const [clients, setClients] = useState<Client[]>(initialMyuzeState.clients);
   const [playlists, setPlaylists] = useState<Playlist[]>(initialMyuzeState.playlists);
   const [songs, setSongs] = useState<Song[]>(initialMyuzeState.songs);
   const [playbackLogs, setPlaybackLogs] = useState<PlaybackLog[]>(initialMyuzeState.playbackLogs);
-  const [boards, setBoards] = useState<Board[]>(initialMyuzeState.boards); // Adicionado
+  const [boards, setBoards] = useState<Board[]>(initialMyuzeState.boards);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentBoardPlayer, setCurrentBoardPlayer] = useState<Board | null>(null); // Novo estado para o player
 
   useEffect(() => {
     const storedUser = getUserFromLocalStorage();
     if (storedUser) {
       setCurrentUser(storedUser);
+    }
+
+    const storedPlayerAuth = localStorage.getItem(PLAYER_AUTH_STORAGE_KEY);
+    if (storedPlayerAuth) {
+      const { boardId, username, password } = JSON.parse(storedPlayerAuth);
+      playerLogin(boardId, username, password); // Tenta fazer login automático do player
     }
   }, []);
 
@@ -81,6 +93,24 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
     setCurrentUser(null);
     removeUserFromLocalStorage();
     toast.info('Você foi desconectado(a).');
+  };
+
+  const playerLogin = (boardId: string, username: string, passwordHash: string): boolean => {
+    const board = boards.find(b => b.id === boardId && b.playerUsername === username && b.playerPassword === passwordHash);
+    if (board) {
+      setCurrentBoardPlayer(board);
+      localStorage.setItem(PLAYER_AUTH_STORAGE_KEY, JSON.stringify({ boardId, username, password: passwordHash }));
+      toast.success(`Player do quadro "${board.name}" conectado!`);
+      return true;
+    }
+    toast.error('Credenciais do player inválidas.');
+    return false;
+  };
+
+  const playerLogout = () => {
+    setCurrentBoardPlayer(null);
+    localStorage.removeItem(PLAYER_AUTH_STORAGE_KEY);
+    toast.info('Player desconectado.');
   };
 
   const getSongsByIds = (ids: string[]): Song[] => {
@@ -213,18 +243,22 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
   };
 
   // Funções para Boards
-  const addBoard = (boardData: Omit<Board, 'id' | 'clientId'>) => {
+  const addBoard = (boardData: Omit<Board, 'id' | 'clientId' | 'playerUsername' | 'playerPassword'>, playerUsername: string, playerPassword: string) => {
     if (!currentUser || currentUser.role !== 'client' || !currentUser.clientId) {
       toast.error('Você precisa ser um cliente logado para adicionar um quadro.');
-      return;
+      return false; // Retorna false para indicar falha
     }
     const newBoard: Board = {
       ...boardData,
       id: uuidv4(),
       clientId: currentUser.clientId,
+      playerUsername,
+      playerPassword,
     };
     setBoards(prev => [...prev, newBoard]);
     toast.success(`Quadro "${newBoard.name}" adicionado!`);
+    toast.info(`Credenciais do Player: Usuário: ${playerUsername}, Senha: ${playerPassword}`, { duration: 10000 });
+    return true; // Retorna true para indicar sucesso
   };
 
   const getBoardById = (id: string) => boards.find(b => b.id === id);
@@ -254,11 +288,14 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
         playlists,
         songs,
         playbackLogs,
-        boards, // Adicionado
+        boards,
         currentUser,
+        currentBoardPlayer, // Adicionado
         login,
         register,
         logout,
+        playerLogin, // Adicionado
+        playerLogout, // Adicionado
         addPlaylist,
         updatePlaylist,
         deletePlaylist,
@@ -271,10 +308,10 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
         addPlaybackLog,
         addMediaItem,
         getClientUserByClientId,
-        addBoard, // Adicionado
-        getBoardById, // Adicionado
-        updateBoard, // Adicionado
-        deleteBoard, // Adicionado
+        addBoard,
+        getBoardById,
+        updateBoard,
+        deleteBoard,
       }}
     >
       {children}
