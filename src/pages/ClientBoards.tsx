@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, Monitor, MapPin, ListMusic, Edit, Trash2, PlayCircle } from 'lucide-react';
+import { Plus, Monitor, MapPin, ListMusic, Edit, Trash2, PlayCircle, MoreVertical } from 'lucide-react'; // Importar MoreVertical
 import CreateBoardDialog from '@/components/CreateBoardDialog';
 import EditBoardDialog from '@/components/EditBoardDialog'; // Importar o novo diálogo
 import { useMyuze } from '@/context/MyuzeContext';
@@ -56,7 +56,7 @@ const ClientBoards = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="text-gray-400 hover:text-myuze-white">
-                      <Plus className="h-5 w-5" />
+                      <MoreVertical className="h-5 w-5" /> {/* Ícone de três pontos */}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="bg-myuze-black border-myuze-purple text-myuze-white">
