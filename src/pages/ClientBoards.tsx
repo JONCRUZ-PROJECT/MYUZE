@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, Monitor, MapPin, ListMusic, Edit, Trash2, PlayCircle, MoreVertical } from 'lucide-react'; // Importar MoreVertical
+import { Plus, Monitor, MapPin, ListMusic, Edit, Trash2, PlayCircle, MoreVertical } from 'lucide-react';
 import CreateBoardDialog from '@/components/CreateBoardDialog';
-import EditBoardDialog from '@/components/EditBoardDialog'; // Importar o novo diálogo
+import EditBoardDialog from '@/components/EditBoardDialog';
 import { useMyuze } from '@/context/MyuzeContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
@@ -20,7 +20,6 @@ import { Link } from 'react-router-dom';
 const ClientBoards = () => {
   const { boards, playlists, currentUser, deleteBoard } = useMyuze();
 
-  // Filter boards relevant to the current client user
   const clientBoards = boards.filter(board => board.clientId === currentUser?.clientId);
 
   const getPlaylistName = (playlistId: string) => {
@@ -56,12 +55,18 @@ const ClientBoards = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="text-gray-400 hover:text-myuze-white">
-                      <MoreVertical className="h-5 w-5" /> {/* Ícone de três pontos */}
+                      <MoreVertical className="h-5 w-5" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="bg-myuze-black border-myuze-purple text-myuze-white">
-                    <EditBoardDialog board={board}> {/* Usando o novo diálogo de edição */}
-                      <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer hover:bg-myuze-purple/20">
+                    <EditBoardDialog board={board}>
+                      <DropdownMenuItem
+                        onSelect={(e) => {
+                          e.preventDefault(); // Previne o fechamento do DropdownMenu
+                          e.stopPropagation(); // Previne a propagação do evento para o DialogTrigger
+                        }}
+                        className="cursor-pointer hover:bg-myuze-purple/20"
+                      >
                         <Edit className="mr-2 h-4 w-4" /> Editar
                       </DropdownMenuItem>
                     </EditBoardDialog>
