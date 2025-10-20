@@ -9,9 +9,7 @@ const LandingPage = () => {
       <section className="relative flex flex-col items-center justify-center text-center py-20 px-4 md:py-32 flex-grow">
         <div className="absolute inset-0 bg-myuze-black opacity-70"></div> {/* Dark overlay */}
         <div className="relative z-10 max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-7xl font-bold mb-4 leading-tight">
-            MYUZE
-          </h1>
+          <img src="/logo/logomyuzew.png" alt="Myuze Logo" className="h-24 md:h-32 mx-auto mb-4" />
           <p className="text-2xl md:text-3xl mb-8 font-light">
             A trilha sonora inteligente da sua marca
           </p>

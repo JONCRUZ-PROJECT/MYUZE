@@ -30,7 +30,7 @@ const Auth = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-myuze-black to-myuze-purple p-4">
       <Card className="w-full max-w-md bg-myuze-gray-translucent text-myuze-white border-none shadow-xl backdrop-blur-sm">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold text-myuze-white">MYUZE</CardTitle>
+          <img src="/logo/logomyuzew.png" alt="Myuze Logo" className="h-16 mx-auto mb-2" />
           <CardDescription className="text-gray-200">
             {isLogin ? 'Faça login para continuar' : 'Crie sua conta Myuze'}
           </CardDescription>

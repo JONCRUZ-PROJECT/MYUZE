@@ -28,7 +28,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-myuze-black text-myuze-white p-4">
-      <div className="text-3xl font-bold text-myuze-purple mb-8 text-center">MYUZE</div>
+      <div className="mb-8 text-center">
+        <img src="/logo/logomyuzew.png" alt="Myuze Logo" className="h-16 mx-auto" />
+      </div>
       <nav className="flex-grow space-y-2">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -82,7 +84,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         {/* Mobile Header with Menu */}
         {isMobile && (
           <header className="bg-myuze-black p-4 flex items-center justify-between shadow-md">
-            <div className="text-2xl font-bold text-myuze-purple">MYUZE</div>
+            <img src="/logo/logomyuzew.png" alt="Myuze Logo" className="h-10" />
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="text-myuze-white">
