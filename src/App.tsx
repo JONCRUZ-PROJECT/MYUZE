@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom"; // Importar useParams
 import LandingPage from "./pages/LandingPage";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
@@ -46,7 +46,8 @@ const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode;
 };
 
 // PlayerProtectedRoute component to guard player routes
-const PlayerProtectedRoute = ({ children, boardId }: { children: React.ReactNode; boardId: string | undefined }) => {
+const PlayerProtectedRoute = ({ children }: { children: React.ReactNode }) => { // Remover boardId dos props
+  const { boardId } = useParams<{ boardId: string }>(); // Obter boardId internamente
   const { currentBoardPlayer } = useMyuze();
 
   if (!boardId) {
@@ -215,7 +216,7 @@ const AppContent = () => {
         <Route
           path="/player-board/:boardId"
           element={
-            <PlayerProtectedRoute boardId={useParams().boardId}>
+            <PlayerProtectedRoute> {/* Não é mais necessário passar boardId como prop aqui */}
               <BoardPlayer />
             </PlayerProtectedRoute>
           }
