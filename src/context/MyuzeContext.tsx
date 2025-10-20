@@ -3,6 +3,7 @@ import { initialMyuzeState, User, Playlist, Song, PlaybackLog, Client } from '@/
 import { saveUserToLocalStorage, getUserFromLocalStorage, removeUserFromLocalStorage } from '@/lib/auth';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
+import { generateRandomPassword, slugify } from '@/lib/utils'; // Importar as novas funções
 
 interface MyuzeContextType {
   users: User[];
@@ -17,8 +18,8 @@ interface MyuzeContextType {
   addPlaylist: (playlist: Omit<Playlist, 'id' | 'userId' | 'songs'>, selectedSongIds: string[]) => void;
   updatePlaylist: (id: string, updatedPlaylist: Omit<Playlist, 'id' | 'userId' | 'songs'>, selectedSongIds: string[]) => void;
   deletePlaylist: (id: string) => void;
-  addClient: (clientData: Omit<Client, 'id' | 'userId' | 'clientUserId'>, clientLoginEmail: string, clientLoginPasswordHash: string) => void;
-  updateClient: (id: string, updatedClientData: Partial<Client>, clientLoginEmail?: string, clientLoginPasswordHash?: string) => void;
+  addClient: (clientData: Omit<Client, 'id' | 'userId' | 'clientUserId'>) => void; // Removido clientLoginEmail e password
+  updateClient: (id: string, updatedClientData: Partial<Client>) => void; // Removido clientLoginEmail e password
   deleteClient: (id: string) => void;
   getClientById: (id: string) => Client | undefined;
   getPlaylistById: (id: string) => Playlist | undefined;
@@ -111,21 +112,25 @@ export const MyuzeProvider = ({ children }: { ReactNode }) => {
     toast.success('Playlist excluída.');
   };
 
-  const addClient = (clientData: Omit<Client, 'id' | 'userId' | 'clientUserId'>, clientLoginEmail: string, clientLoginPasswordHash: string) => {
+  const addClient = (clientData: Omit<Client, 'id' | 'userId' | 'clientUserId'>) => {
     if (!currentUser) {
       toast.error('Você precisa estar logado para adicionar um cliente.');
       return;
     }
-    if (users.some(u => u.email === clientLoginEmail)) {
-      toast.error('Já existe um usuário com este e-mail de login para o cliente.');
+
+    const generatedClientLoginEmail = `${slugify(clientData.name)}@myuze.com`;
+    const generatedClientLoginPassword = generateRandomPassword();
+
+    if (users.some(u => u.email === generatedClientLoginEmail)) {
+      toast.error('Já existe um usuário com este e-mail de login gerado para o cliente. Por favor, tente um nome de cliente diferente.');
       return;
     }
 
     const newClientUserId = uuidv4();
     const newClientUser: User = {
       id: newClientUserId,
-      email: clientLoginEmail,
-      passwordHash: clientLoginPasswordHash,
+      email: generatedClientLoginEmail,
+      passwordHash: generatedClientLoginPassword, // Em um app real, isso seria hashed
       role: 'client',
     };
 
@@ -141,27 +146,13 @@ export const MyuzeProvider = ({ children }: { ReactNode }) => {
     setUsers(prev => [...prev, newClientUser]);
     setClients(prev => [...prev, newClient]);
     toast.success(`Cliente "${newClient.name}" e conta de login criados!`);
+    toast.info(`Credenciais do cliente: E-mail: ${generatedClientLoginEmail}, Senha: ${generatedClientLoginPassword}`, { duration: 10000 });
   };
 
-  const updateClient = (id: string, updatedClientData: Partial<Client>, clientLoginEmail?: string, clientLoginPasswordHash?: string) => {
+  const updateClient = (id: string, updatedClientData: Partial<Client>) => {
     setClients(prevClients =>
       prevClients.map(c => {
         if (c.id === id) {
-          // Update client's associated user if email/password are provided
-          if (c.clientUserId && (clientLoginEmail || clientLoginPasswordHash)) {
-            setUsers(prevUsers =>
-              prevUsers.map(u => {
-                if (u.id === c.clientUserId) {
-                  return {
-                    ...u,
-                    email: clientLoginEmail !== undefined ? clientLoginEmail : u.email,
-                    passwordHash: clientLoginPasswordHash !== undefined ? clientLoginPasswordHash : u.passwordHash,
-                  };
-                }
-                return u;
-              })
-            );
-          }
           return { ...c, ...updatedClientData };
         }
         return c;

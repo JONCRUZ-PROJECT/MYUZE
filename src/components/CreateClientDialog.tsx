@@ -21,8 +21,6 @@ const CreateClientDialog = ({ children }: CreateClientDialogProps) => {
   const [contactPhone, setContactPhone] = useState('');
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | undefined>(undefined);
-  const [clientLoginEmail, setClientLoginEmail] = useState(''); // Novo estado para login do cliente
-  const [clientLoginPassword, setClientLoginPassword] = useState(''); // Novo estado para senha do cliente
 
   const handleLogoFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -37,15 +35,13 @@ const CreateClientDialog = ({ children }: CreateClientDialogProps) => {
   };
 
   const handleSubmit = () => {
-    if (!name || !contactEmail || !clientLoginEmail || !clientLoginPassword) {
-      toast.error('Por favor, preencha todos os campos obrigatórios, incluindo as credenciais de login do cliente.');
+    if (!name || !contactEmail) {
+      toast.error('Por favor, preencha o nome do cliente e o e-mail de contato.');
       return;
     }
 
     addClient(
-      { name, contactEmail, contactPhone: contactPhone || undefined, logoUrl: logoPreviewUrl },
-      clientLoginEmail,
-      clientLoginPassword
+      { name, contactEmail, contactPhone: contactPhone || undefined, logoUrl: logoPreviewUrl }
     );
     setIsOpen(false);
     setName('');
@@ -53,8 +49,6 @@ const CreateClientDialog = ({ children }: CreateClientDialogProps) => {
     setContactPhone('');
     setLogoFile(null);
     setLogoPreviewUrl(undefined);
-    setClientLoginEmail('');
-    setClientLoginPassword('');
   };
 
   return (
@@ -64,7 +58,7 @@ const CreateClientDialog = ({ children }: CreateClientDialogProps) => {
         <DialogHeader>
           <DialogTitle className="text-myuze-white">Adicionar Novo Cliente</DialogTitle>
           <DialogDescription className="text-gray-400">
-            Preencha os detalhes para adicionar um novo cliente e suas credenciais de acesso.
+            Preencha os detalhes para adicionar um novo cliente. As credenciais de login serão geradas automaticamente.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -120,33 +114,6 @@ const CreateClientDialog = ({ children }: CreateClientDialogProps) => {
             {logoPreviewUrl && (
               <img src={logoPreviewUrl} alt="Prévia do Logo" className="w-24 h-24 object-contain rounded-md mt-2 border border-myuze-purple/50 p-1" />
             )}
-          </div>
-          <div className="space-y-2 border-t border-myuze-purple/50 pt-4 mt-4">
-            <h3 className="text-lg font-semibold text-myuze-white">Credenciais de Login do Cliente</h3>
-            <Label htmlFor="clientLoginEmail" className="text-myuze-white">
-              E-mail de Login *
-            </Label>
-            <Input
-              id="clientLoginEmail"
-              type="email"
-              value={clientLoginEmail}
-              onChange={(e) => setClientLoginEmail(e.target.value)}
-              placeholder="login@empresa.com"
-              className="bg-myuze-black/50 border-myuze-purple text-myuze-white placeholder:text-gray-400"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="clientLoginPassword" className="text-myuze-white">
-              Senha de Login *
-            </Label>
-            <Input
-              id="clientLoginPassword"
-              type="password"
-              value={clientLoginPassword}
-              onChange={(e) => setClientLoginPassword(e.target.value)}
-              placeholder="********"
-              className="bg-myuze-black/50 border-myuze-purple text-myuze-white placeholder:text-gray-400"
-            />
           </div>
         </div>
         <DialogFooter className="flex justify-end gap-2">

@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { User, Mail, Phone, MoreVertical, Edit, Trash2, Building } from 'lucide-react';
+import { User, Mail, Phone, MoreVertical, Edit, Trash2, Building, Copy } from 'lucide-react';
 import { useMyuze } from '@/context/MyuzeContext';
 import { Client } from '@/lib/data';
 import { toast } from 'sonner';
@@ -21,12 +21,24 @@ interface ClientCardProps {
 }
 
 const ClientCard = ({ client }: ClientCardProps) => {
-  const { deleteClient } = useMyuze();
+  const { deleteClient, getClientUserByClientId } = useMyuze();
+  const clientUser = getClientUserByClientId(client.id);
 
   const handleDelete = () => {
     if (window.confirm(`Tem certeza que deseja excluir o cliente "${client.name}"?`)) {
       deleteClient(client.id);
       toast.success(`Cliente "${client.name}" foi excluído.`);
+    }
+  };
+
+  const handleCopyCredentials = () => {
+    if (clientUser) {
+      const credentials = `E-mail: ${clientUser.email}\nSenha: ${clientUser.passwordHash}`;
+      navigator.clipboard.writeText(credentials)
+        .then(() => toast.success('Credenciais copiadas para a área de transferência!'))
+        .catch(() => toast.error('Falha ao copiar credenciais.'));
+    } else {
+      toast.error('Credenciais do cliente não encontradas.');
     }
   };
 
@@ -64,25 +76,24 @@ const ClientCard = ({ client }: ClientCardProps) => {
           <Button variant="ghost" size="icon" onClick={handleDelete} className="text-red-400 hover:text-red-300">
             <Trash2 className="h-5 w-5" />
           </Button>
-          {/* You can keep the DropdownMenu for other actions if needed, or remove it if redundant */}
-          {/*
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-gray-400 hover:text-myuze-white">
-                <MoreVertical className="h-5 w-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-myuze-black border-myuze-purple text-myuze-white">
-              <DropdownMenuItem className="cursor-pointer hover:bg-myuze-purple/20">
-                Outra Ação
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          */}
         </div>
       </CardHeader>
       <CardContent className="p-0 mt-4">
-        {/* Conteúdo adicional do cliente pode ir aqui */}
+        {clientUser && (
+          <div className="bg-myuze-black/50 border border-myuze-purple/50 rounded-md p-3 mt-4">
+            <p className="text-sm text-gray-400">Credenciais de Login:</p>
+            <p className="font-medium text-myuze-white">E-mail: {clientUser.email}</p>
+            <p className="font-medium text-myuze-white">Senha: {clientUser.passwordHash}</p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleCopyCredentials}
+              className="mt-3 w-full bg-myuze-purple/20 border-myuze-purple text-myuze-purple hover:bg-myuze-purple/30 hover:text-myuze-white"
+            >
+              <Copy className="mr-2 h-4 w-4" /> Copiar Credenciais
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

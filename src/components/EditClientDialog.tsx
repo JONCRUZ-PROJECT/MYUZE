@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { X } from 'lucide-react';
+import { X, Copy } from 'lucide-react';
 import { useMyuze } from '@/context/MyuzeContext';
 import { Client } from '@/lib/data';
 import { toast } from 'sonner';
@@ -40,7 +40,7 @@ const EditClientDialog = ({ children, client }: EditClientDialogProps) => {
         const clientUser = getClientUserByClientId(client.id);
         if (clientUser) {
           setClientLoginEmail(clientUser.email);
-          setClientLoginPassword(clientUser.passwordHash); // In a real app, this would not be pre-filled
+          setClientLoginPassword(clientUser.passwordHash); // Em um app real, isso não seria pré-preenchido
         }
       } else {
         setClientLoginEmail('');
@@ -57,13 +57,20 @@ const EditClientDialog = ({ children, client }: EditClientDialogProps) => {
       toast.info(`Novo logo "${file.name}" selecionado.`);
     } else {
       setLogoFile(null);
-      setLogoPreviewUrl(client.logoUrl); // Revert to original if no new file
+      setLogoPreviewUrl(client.logoUrl); // Reverte para o original se nenhum novo arquivo
     }
   };
 
+  const handleCopyCredentials = () => {
+    const credentials = `E-mail: ${clientLoginEmail}\nSenha: ${clientLoginPassword}`;
+    navigator.clipboard.writeText(credentials)
+      .then(() => toast.success('Credenciais copiadas para a área de transferência!'))
+      .catch(() => toast.error('Falha ao copiar credenciais.'));
+  };
+
   const handleSubmit = () => {
-    if (!name || !contactEmail || !clientLoginEmail || !clientLoginPassword) {
-      toast.error('Por favor, preencha todos os campos obrigatórios, incluindo as credenciais de login do cliente.');
+    if (!name || !contactEmail) {
+      toast.error('Por favor, preencha o nome do cliente e o e-mail de contato.');
       return;
     }
 
@@ -71,10 +78,10 @@ const EditClientDialog = ({ children, client }: EditClientDialogProps) => {
       name,
       contactEmail,
       contactPhone: contactPhone || undefined,
-      logoUrl: logoPreviewUrl, // Use the generated preview URL or existing one
+      logoUrl: logoPreviewUrl, // Usa a URL de prévia gerada ou a existente
     };
 
-    updateClient(client.id, updatedClientData, clientLoginEmail, clientLoginPassword);
+    updateClient(client.id, updatedClientData); // Credenciais não são mais passadas aqui
     setIsOpen(false);
   };
 
@@ -85,8 +92,8 @@ const EditClientDialog = ({ children, client }: EditClientDialogProps) => {
         <DialogHeader>
           <DialogTitle className="text-myuze-white">Editar Cliente</DialogTitle>
           <DialogDescription className="text-gray-400">
-            Modifique os detalhes do cliente existente e suas credenciais de acesso.
-          </DialogDescription>
+            Modifique os detalhes do cliente existente. As credenciais de login são geradas automaticamente e não podem ser editadas diretamente.
+          </CardDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="space-y-2">
@@ -144,30 +151,17 @@ const EditClientDialog = ({ children, client }: EditClientDialogProps) => {
           </div>
           <div className="space-y-2 border-t border-myuze-purple/50 pt-4 mt-4">
             <h3 className="text-lg font-semibold text-myuze-white">Credenciais de Login do Cliente</h3>
-            <Label htmlFor="clientLoginEmail" className="text-myuze-white">
-              E-mail de Login *
-            </Label>
-            <Input
-              id="clientLoginEmail"
-              type="email"
-              value={clientLoginEmail}
-              onChange={(e) => setClientLoginEmail(e.target.value)}
-              placeholder="login@empresa.com"
-              className="bg-myuze-black/50 border-myuze-purple text-myuze-white placeholder:text-gray-400"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="clientLoginPassword" className="text-myuze-white">
-              Senha de Login *
-            </Label>
-            <Input
-              id="clientLoginPassword"
-              type="password"
-              value={clientLoginPassword}
-              onChange={(e) => setClientLoginPassword(e.target.value)}
-              placeholder="********"
-              className="bg-myuze-black/50 border-myuze-purple text-myuze-white placeholder:text-gray-400"
-            />
+            <div className="flex items-center justify-between bg-myuze-black/50 border border-myuze-purple/50 rounded-md p-3">
+              <div>
+                <p className="text-sm text-gray-400">E-mail:</p>
+                <p className="font-medium text-myuze-white">{clientLoginEmail}</p>
+                <p className="text-sm text-gray-400 mt-2">Senha:</p>
+                <p className="font-medium text-myuze-white">{clientLoginPassword}</p>
+              </div>
+              <Button variant="ghost" size="icon" onClick={handleCopyCredentials} className="text-myuze-purple hover:text-myuze-purple/80">
+                <Copy className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
         </div>
         <DialogFooter className="flex justify-end gap-2">
