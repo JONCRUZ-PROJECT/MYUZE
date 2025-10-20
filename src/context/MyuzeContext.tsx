@@ -60,9 +60,15 @@ export const MyuzeProvider = ({ children }: { ReactNode }) => {
     const storedPlayerAuth = localStorage.getItem(PLAYER_AUTH_STORAGE_KEY);
     if (storedPlayerAuth) {
       const { boardId, username, password } = JSON.parse(storedPlayerAuth);
-      playerLogin(boardId, username, password); // Tenta fazer login automático do player
+      // Tenta fazer login automático do player, mas sem toast para evitar spam no carregamento
+      const board = boards.find(b => b.id === boardId && b.playerUsername === username && b.playerPassword === password);
+      if (board) {
+        setCurrentBoardPlayer(board);
+      } else {
+        localStorage.removeItem(PLAYER_AUTH_STORAGE_KEY); // Limpa se as credenciais armazenadas forem inválidas
+      }
     }
-  }, []);
+  }, [boards]); // Adicionado 'boards' como dependência para reavaliar o login do player se os quadros mudarem
 
   const login = (email: string, passwordHash: string): boolean => {
     const user = users.find(u => u.email === email && u.passwordHash === passwordHash);
@@ -96,8 +102,20 @@ export const MyuzeProvider = ({ children }: { ReactNode }) => {
   };
 
   const playerLogin = (boardId: string, username: string, passwordHash: string): boolean => {
-    const board = boards.find(b => b.id === boardId && b.playerUsername === username && b.playerPassword === passwordHash);
-    if (board) {
+    console.log('playerLogin: Tentando login para boardId:', boardId, 'username:', username, 'passwordHash:', passwordHash);
+    const board = boards.find(b => b.id === boardId);
+    
+    if (!board) {
+      console.log('playerLogin: Quadro não encontrado para ID:', boardId);
+      toast.error('Credenciais do player inválidas.');
+      return false;
+    }
+
+    console.log('playerLogin: Quadro encontrado:', board);
+    console.log('playerLogin: Comparando username:', username, 'com', board.playerUsername);
+    console.log('playerLogin: Comparando passwordHash:', passwordHash, 'com', board.playerPassword);
+
+    if (board.playerUsername === username && board.playerPassword === passwordHash) {
       setCurrentBoardPlayer(board);
       localStorage.setItem(PLAYER_AUTH_STORAGE_KEY, JSON.stringify({ boardId, username, password: passwordHash }));
       toast.success(`Player do quadro "${board.name}" conectado!`);
@@ -256,6 +274,7 @@ export const MyuzeProvider = ({ children }: { ReactNode }) => {
       playerPassword,
     };
     setBoards(prev => [...prev, newBoard]);
+    console.log('addBoard: Novo quadro adicionado:', newBoard); // Log do novo quadro
     toast.success(`Quadro "${newBoard.name}" adicionado!`);
     toast.info(`Credenciais do Player: Usuário: ${playerUsername}, Senha: ${playerPassword}`, { duration: 10000 });
     return true; // Retorna true para indicar sucesso

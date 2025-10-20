@@ -22,6 +22,7 @@ const BoardPlayerAuth = () => {
       toast.error('ID do quadro não fornecido.');
       return;
     }
+    console.log('BoardPlayerAuth: Tentando login com boardId:', boardId, 'username:', username, 'password:', password);
     const success = playerLogin(boardId, username, password);
     if (success) {
       navigate(`/player-board/${boardId}`);
