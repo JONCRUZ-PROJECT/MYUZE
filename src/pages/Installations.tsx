@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, Edit, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
+import { Plus, Edit, Trash2, Store, Globe, WifiOff } from 'lucide-react';
 import { useMyuze } from '@/context/MyuzeContext';
 import InstallationCard from '@/components/InstallationCard';
 import CreateInstallationDialog from '@/components/CreateInstallationDialog';
@@ -13,11 +13,16 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { toast } from 'sonner';
 
 const Installations = () => {
   const { stores, currentUser } = useMyuze();
   const companyName = currentUser?.email ? currentUser.email.split('@')[0] : 'Sua Empresa';
+
+  const totalInstallations = stores.length;
+  const onlineInstallations = stores.filter(store => store.status === 'online').length;
+  const offlineInstallations = totalInstallations - onlineInstallations;
 
   const handleCompanyEdit = () => {
     toast.info(`Funcionalidade de edição para a empresa "${companyName}" será implementada.`);
@@ -38,7 +43,7 @@ const Installations = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="text-gray-400 hover:text-myuze-white">
-                <ChevronDown className="h-5 w-5" />
+                <Edit className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="bg-myuze-black border-myuze-purple text-myuze-white">
@@ -59,8 +64,34 @@ const Installations = () => {
         </CreateInstallationDialog>
       </div>
 
-      <p className="text-lg">Gerencie suas instalações aqui.</p>
+      <p className="text-lg mb-8">Gerencie suas instalações aqui.</p>
 
+      {/* Company Summary Box */}
+      <Card className="bg-myuze-gray-translucent text-myuze-white border-none shadow-xl backdrop-blur-sm mb-8">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-xl font-semibold text-myuze-white flex items-center">
+            <Store className="h-6 w-6 mr-3 text-myuze-purple" />
+            {companyName}
+          </CardTitle>
+          <CardDescription className="text-gray-300">Visão Geral das Instalações</CardDescription>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="flex flex-col items-center p-3 bg-myuze-black/50 rounded-md border border-myuze-purple/30">
+            <p className="text-3xl font-bold text-myuze-purple">{totalInstallations}</p>
+            <p className="text-sm text-gray-300">Total</p>
+          </div>
+          <div className="flex flex-col items-center p-3 bg-myuze-black/50 rounded-md border border-myuze-purple/30">
+            <p className="text-3xl font-bold text-green-400">{onlineInstallations}</p>
+            <p className="text-sm text-gray-300 flex items-center"><Globe className="h-4 w-4 mr-1" /> Online</p>
+          </div>
+          <div className="flex flex-col items-center p-3 bg-myuze-black/50 rounded-md border border-myuze-purple/30">
+            <p className="text-3xl font-bold text-red-400">{offlineInstallations}</p>
+            <p className="text-sm text-gray-300 flex items-center"><WifiOff className="h-4 w-4 mr-1" /> Offline</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* List of Installation Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {stores.length === 0 ? (
           <p className="text-gray-400 col-span-full">Nenhuma instalação criada ainda. Clique em "Adicionar Instalação" para começar!</p>
