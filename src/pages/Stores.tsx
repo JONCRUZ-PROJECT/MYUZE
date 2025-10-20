@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, Wifi, Store as StoreIcon } from 'lucide-react'; // Added StoreIcon for client grouping
+import { Plus, Wifi, Store as StoreIcon } from 'lucide-react';
 import { useMyuze } from '@/context/MyuzeContext';
 import CreateStoreDialog from '@/components/CreateStoreDialog';
 import StoreCard from '@/components/StoreCard';
@@ -17,14 +17,11 @@ const Stores = () => {
     <div className="text-myuze-white space-y-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-4xl font-bold">Lojas</h1>
-        {/* O botão 'Nova Loja' aqui seria para uma loja genérica,
-            mas estamos focando em adicioná-la via ClientCard por enquanto.
-            Mantendo isso para flexibilidade futura, se necessário. */}
-        {/* <CreateStoreDialog clientId={clients[0]?.id || ''}>
+        <CreateStoreDialog> {/* Removed clientId prop to allow selection */}
           <Button className="bg-myuze-purple hover:bg-myuze-purple/80 text-myuze-white">
             <Plus className="mr-2 h-4 w-4" /> Nova Loja
           </Button>
-        </CreateStoreDialog> */}
+        </CreateStoreDialog>
       </div>
       <p className="text-lg mb-8">Gerencie as lojas de música dos seus clientes.</p>
 
