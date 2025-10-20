@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, ListMusic, Store, BarChart2, Settings, LogOut, Menu, BookOpen, LayoutDashboard } from 'lucide-react'; // Import LayoutDashboard
+import { Home, ListMusic, Store, BarChart2, Settings, LogOut, Menu, BookOpen, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useMyuze } from '@/context/MyuzeContext';
@@ -14,10 +14,10 @@ interface DashboardLayoutProps {
 }
 
 const navItems = [
-  { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard }, // Changed from Início to Dashboard with new icon
+  { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+  { name: 'Biblioteca', path: '/library', icon: BookOpen }, // Moved Biblioteca up
   { name: 'Playlists', path: '/playlists', icon: ListMusic },
   { name: 'Lojas', path: '/stores', icon: Store },
-  { name: 'Biblioteca', path: '/library', icon: BookOpen },
   { name: 'Relatórios', path: '/reports', icon: BarChart2 },
   { name: 'Configurações', path: '/settings', icon: Settings },
 ];
@@ -33,7 +33,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <img src="/logo/logomyuzew.png" alt="Myuze Logo" className="h-16 mx-auto" />
       </div>
       <div className="flex-grow space-y-2">
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-4">NAVEGAÇÃO</p> {/* Added NAVEGAÇÃO description */}
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-4">NAVEGAÇÃO</p>
         <nav className="space-y-2">
           {navItems.map((item) => {
             const Icon = item.icon;
