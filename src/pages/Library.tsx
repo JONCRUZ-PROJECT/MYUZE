@@ -8,27 +8,42 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Upload, Music, Mic, Plus } from 'lucide-react'; // Import Plus icon
+import { Upload, Music, Mic, Plus, PlayCircle, Trash2 } from 'lucide-react'; // Import PlayCircle and Trash2 icons
 import { toast } from 'sonner';
+import { useMyuze } from '@/context/MyuzeContext'; // Import useMyuze
+import { Song } from '@/lib/data'; // Import Song interface
 
 const Library = () => {
+  const { songs, addMediaItem } = useMyuze(); // Use context
   const [songFile, setSongFile] = useState<File | null>(null);
+  const [songTitle, setSongTitle] = useState<string>(''); // New state for song title
   const [songMood, setSongMood] = useState<string>('');
   const [songArtist, setSongArtist] = useState<string>('MYUZE');
   const [songGenre, setSongGenre] = useState<string>('');
-  const [showSongUploadForm, setShowSongUploadForm] = useState(false); // New state for song form visibility
+  const [showSongUploadForm, setShowSongUploadForm] = useState(false);
 
   const [voiceoverFile, setVoiceoverFile] = useState<File | null>(null);
   const [voiceoverName, setVoiceoverName] = useState<string>('');
-  const [voiceoverType, setVoiceoverType] = useState<string>('');
-  const [voiceoverDuration, setVoiceoverDuration] = useState<string>('');
+  const [voiceoverType, setVoiceoverType] = useState<'propaganda' | 'aviso' | 'promocao' | 'institucional' | ''>('');
+  const [voiceoverDuration, setVoiceoverDuration] = useState<number>(0); // Store duration in seconds
+  const [voiceoverDurationDisplay, setVoiceoverDurationDisplay] = useState<string>(''); // For display
   const [voiceoverDescription, setVoiceoverDescription] = useState<string>('');
-  const [showVoiceoverUploadForm, setShowVoiceoverUploadForm] = useState(false); // New state for voiceover form visibility
+  const [showVoiceoverUploadForm, setShowVoiceoverUploadForm] = useState(false);
+
+  const musicTracks = songs.filter(item => !item.isAd);
+  const voiceovers = songs.filter(item => item.isAd);
+
+  const formatDuration = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+  };
 
   const handleSongFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
       setSongFile(file);
+      setSongTitle(file.name.split('.').slice(0, -1).join('.')); // Set title from filename
       toast.success(`Música "${file.name}" selecionada para upload.`);
     }
   };
@@ -40,54 +55,76 @@ const Library = () => {
       setVoiceoverName(file.name.split('.').slice(0, -1).join('.'));
       const audio = new Audio(URL.createObjectURL(file));
       audio.onloadedmetadata = () => {
-        const minutes = Math.floor(audio.duration / 60);
-        const seconds = Math.floor(audio.duration % 60);
-        setVoiceoverDuration(`${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
+        setVoiceoverDuration(audio.duration);
+        setVoiceoverDurationDisplay(formatDuration(audio.duration));
       };
       toast.success(`Locução "${file.name}" selecionada para upload.`);
     }
   };
 
   const handleSongUploadSubmit = () => {
-    if (songFile) {
-      toast.info(`Iniciando upload da música "${songFile.name}"...`);
-      console.log('Uploading song:', {
-        file: songFile,
-        mood: songMood,
+    if (!songFile || !songTitle || !songMood || !songGenre) {
+      toast.error('Por favor, preencha todos os campos e selecione um arquivo de música.');
+      return;
+    }
+
+    const audio = new Audio(URL.createObjectURL(songFile));
+    audio.onloadedmetadata = () => {
+      const newSong: Omit<Song, 'id' | 'fileUrl'> = {
+        title: songTitle,
         artist: songArtist,
+        duration: audio.duration,
+        isAd: false,
+        mood: songMood,
         genre: songGenre,
-      });
+      };
+      addMediaItem(newSong, songFile);
+      // Reset form
       setSongFile(null);
+      setSongTitle('');
       setSongMood('');
       setSongArtist('MYUZE');
       setSongGenre('');
-      setShowSongUploadForm(false); // Hide form after upload
-      toast.success('Música enviada com sucesso!');
-    } else {
-      toast.error('Por favor, selecione um arquivo de música para fazer upload.');
-    }
+      setShowSongUploadForm(false);
+    };
   };
 
   const handleVoiceoverUploadSubmit = () => {
-    if (voiceoverFile) {
-      toast.info(`Iniciando upload da locução "${voiceoverFile.name}"...`);
-      console.log('Uploading voiceover:', {
-        file: voiceoverFile,
-        name: voiceoverName,
-        type: voiceoverType,
-        duration: voiceoverDuration,
-        description: voiceoverDescription,
-      });
-      setVoiceoverFile(null);
-      setVoiceoverName('');
-      setVoiceoverType('');
-      setVoiceoverDuration('');
-      setVoiceoverDescription('');
-      setShowVoiceoverUploadForm(false); // Hide form after upload
-      toast.success('Locução enviada com sucesso!');
-    } else {
-      toast.error('Por favor, selecione um arquivo de locução para fazer upload.');
+    if (!voiceoverFile || !voiceoverName || !voiceoverType || !voiceoverDescription || voiceoverDuration === 0) {
+      toast.error('Por favor, preencha todos os campos e selecione um arquivo de locução.');
+      return;
     }
+
+    const newVoiceover: Omit<Song, 'id' | 'fileUrl'> = {
+      title: voiceoverName,
+      artist: 'MYUZE', // Voiceovers are typically from Myuze or a client, fixed for now
+      duration: voiceoverDuration,
+      isAd: true,
+      adType: voiceoverType,
+      adDescription: voiceoverDescription,
+    };
+    addMediaItem(newVoiceover, voiceoverFile);
+    // Reset form
+    setVoiceoverFile(null);
+    setVoiceoverName('');
+    setVoiceoverType('');
+    setVoiceoverDuration(0);
+    setVoiceoverDurationDisplay('');
+    setVoiceoverDescription('');
+    setShowVoiceoverUploadForm(false);
+  };
+
+  const handlePlay = (fileUrl: string, title: string) => {
+    const audio = new Audio(fileUrl);
+    audio.play().catch(e => toast.error(`Erro ao reproduzir "${title}": ${e.message}`));
+    toast.info(`Reproduzindo: "${title}"`);
+  };
+
+  // In a real app, you'd implement actual deletion logic
+  const handleDelete = (id: string, title: string) => {
+    toast.info(`Simulando exclusão de "${title}" (ID: ${id})...`);
+    // For now, we'll just show a toast. Actual deletion would involve updating the 'songs' state.
+    toast.success(`"${title}" excluído (simulado) com sucesso!`);
   };
 
   return (
@@ -140,6 +177,18 @@ const Library = () => {
                   {songFile && <p className="text-sm text-gray-400 mt-2">Arquivo selecionado: {songFile.name}</p>}
                 </div>
 
+                <div>
+                  <Label htmlFor="song-title" className="text-myuze-white mb-2 block">Título da Música</Label>
+                  <Input
+                    id="song-title"
+                    type="text"
+                    value={songTitle}
+                    onChange={(e) => setSongTitle(e.target.value)}
+                    placeholder="Título da Música"
+                    className="bg-myuze-black/50 border-myuze-purple text-myuze-white placeholder:text-gray-400 focus:ring-myuze-purple focus:border-myuze-purple"
+                  />
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="song-mood" className="text-myuze-white mb-2 block">Mood</Label>
@@ -187,6 +236,32 @@ const Library = () => {
                 </div>
               </CardContent>
             )}
+            <CardContent className="mt-4">
+              <h3 className="text-xl font-semibold mb-4">Músicas Cadastradas ({musicTracks.length})</h3>
+              {musicTracks.length === 0 ? (
+                <p className="text-gray-400">Nenhuma música cadastrada ainda.</p>
+              ) : (
+                <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
+                  {musicTracks.map(song => (
+                    <div key={song.id} className="flex items-center justify-between bg-myuze-black/50 p-3 rounded-md border border-myuze-purple/30">
+                      <div className="flex-grow">
+                        <p className="font-medium text-myuze-white">{song.title}</p>
+                        <p className="text-sm text-gray-400">{song.artist} - {formatDuration(song.duration)}</p>
+                        <p className="text-xs text-gray-500">Mood: {song.mood}, Gênero: {song.genre}</p>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button variant="ghost" size="icon" onClick={() => handlePlay(song.fileUrl, song.title)} className="text-myuze-purple hover:text-myuze-purple/80">
+                          <PlayCircle className="h-5 w-5" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleDelete(song.id, song.title)} className="text-red-400 hover:text-red-300">
+                          <Trash2 className="h-5 w-5" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
           </Card>
         </TabsContent>
 
@@ -226,7 +301,7 @@ const Library = () => {
                     id="voiceover-name"
                     type="text"
                     value={voiceoverName}
-                    readOnly
+                    onChange={(e) => setVoiceoverName(e.target.value)} // Allow editing name
                     placeholder="Nome do arquivo (automático)"
                     className="bg-myuze-black/50 border-myuze-purple text-myuze-white placeholder:text-gray-400 focus:ring-myuze-purple focus:border-myuze-purple"
                   />
@@ -252,7 +327,7 @@ const Library = () => {
                     <Input
                       id="voiceover-duration"
                       type="text"
-                      value={voiceoverDuration}
+                      value={voiceoverDurationDisplay}
                       readOnly
                       placeholder="Duração (automático)"
                       className="bg-myuze-black/50 border-myuze-purple text-myuze-white placeholder:text-gray-400 focus:ring-myuze-purple focus:border-myuze-purple"
@@ -272,6 +347,32 @@ const Library = () => {
                 </div>
               </CardContent>
             )}
+            <CardContent className="mt-4">
+              <h3 className="text-xl font-semibold mb-4">Locuções Cadastradas ({voiceovers.length})</h3>
+              {voiceovers.length === 0 ? (
+                <p className="text-gray-400">Nenhuma locução cadastrada ainda.</p>
+              ) : (
+                <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
+                  {voiceovers.map(vo => (
+                    <div key={vo.id} className="flex items-center justify-between bg-myuze-black/50 p-3 rounded-md border border-myuze-purple/30">
+                      <div className="flex-grow">
+                        <p className="font-medium text-myuze-white">{vo.title}</p>
+                        <p className="text-sm text-gray-400">Tipo: {vo.adType} - {formatDuration(vo.duration)}</p>
+                        <p className="text-xs text-gray-500">{vo.adDescription}</p>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button variant="ghost" size="icon" onClick={() => handlePlay(vo.fileUrl, vo.title)} className="text-myuze-purple hover:text-myuze-purple/80">
+                          <PlayCircle className="h-5 w-5" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleDelete(vo.id, vo.title)} className="text-red-400 hover:text-red-300">
+                          <Trash2 className="h-5 w-5" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
           </Card>
         </TabsContent>
       </Tabs>

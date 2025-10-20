@@ -37,7 +37,14 @@ export interface Song {
   title: string;
   artist: string;
   duration: number; // in seconds
-  isAd?: boolean;
+  fileUrl: string; // URL for playback (e.g., data URL or object URL)
+  isAd?: boolean; // True if it's a voiceover/ad
+  // Fields specific to ads/voiceovers
+  adType?: 'propaganda' | 'aviso' | 'promocao' | 'institucional';
+  adDescription?: string;
+  // Fields specific to music
+  mood?: string; // e.g., 'calm', 'energetic'
+  genre?: string; // e.g., 'lo-fi', 'pop'
 }
 
 export interface PlaybackLog {
@@ -57,13 +64,13 @@ const mockUsers: User[] = [
 ];
 
 const mockSongs: Song[] = [
-  { id: uuidv4(), title: 'Morning Chill', artist: 'Lo-fi Beats', duration: 180 },
-  { id: uuidv4(), title: 'Coffee Shop Jazz', artist: 'Smooth Tunes', duration: 240 },
-  { id: uuidv4(), title: 'Upbeat Pop Anthem', artist: 'Energetic Crew', duration: 210 },
-  { id: uuidv4(), title: 'Deep Focus Electronic', artist: 'Synthwave Master', duration: 300 },
-  { id: uuidv4(), title: 'Bossa Nova Sunset', artist: 'Rio Rhythms', duration: 270 },
-  { id: uuidv4(), title: 'Ad: Myuze Promo', artist: 'Myuze Team', duration: 30, isAd: true },
-  { id: uuidv4(), title: 'Ad: New Product Launch', artist: 'Brand X', duration: 30, isAd: true },
+  { id: uuidv4(), title: 'Morning Chill', artist: 'Lo-fi Beats', duration: 180, fileUrl: '/audio/morning-chill.mp3', mood: 'calm', genre: 'lo-fi' },
+  { id: uuidv4(), title: 'Coffee Shop Jazz', artist: 'Smooth Tunes', duration: 240, fileUrl: '/audio/coffee-shop-jazz.mp3', mood: 'relaxed', genre: 'jazz' },
+  { id: uuidv4(), title: 'Upbeat Pop Anthem', artist: 'Energetic Crew', duration: 210, fileUrl: '/audio/upbeat-pop.mp3', mood: 'energetic', genre: 'pop' },
+  { id: uuidv4(), title: 'Deep Focus Electronic', artist: 'Synthwave Master', duration: 300, fileUrl: '/audio/deep-focus.mp3', mood: 'focused', genre: 'electronic' },
+  { id: uuidv4(), title: 'Bossa Nova Sunset', artist: 'Rio Rhythms', duration: 270, fileUrl: '/audio/bossa-nova.mp3', mood: 'relaxed', genre: 'bossa' },
+  { id: uuidv4(), title: 'Ad: Myuze Promo', artist: 'Myuze Team', duration: 30, isAd: true, fileUrl: '/audio/myuze-promo.mp3', adType: 'propaganda', adDescription: 'Promoção geral da Myuze' },
+  { id: uuidv4(), title: 'Ad: New Product Launch', artist: 'Brand X', duration: 30, isAd: true, fileUrl: '/audio/new-product-ad.mp3', adType: 'promocao', adDescription: 'Lançamento de novo produto da Brand X' },
 ];
 
 const mockPlaylists: Playlist[] = [

@@ -24,6 +24,7 @@ interface MyuzeContextType {
   getStoreById: (id: string) => Store | undefined;
   getSongsByIds: (ids: string[]) => Song[];
   addPlaybackLog: (log: Omit<PlaybackLog, 'id'>) => void;
+  addMediaItem: (mediaItem: Omit<Song, 'id' | 'fileUrl'>, file: File) => void; // New function
 }
 
 const MyuzeContext = createContext<MyuzeContextType | undefined>(undefined);
@@ -148,6 +149,23 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
     setPlaybackLogs(prev => [...prev, newLog]);
   };
 
+  // New function to add songs or voiceovers
+  const addMediaItem = (mediaItemData: Omit<Song, 'id' | 'fileUrl'>, file: File) => {
+    if (!currentUser) {
+      toast.error('Você precisa estar logado para adicionar itens à biblioteca.');
+      return;
+    }
+
+    const fileUrl = URL.createObjectURL(file); // Create a temporary URL for playback
+    const newMediaItem: Song = {
+      ...mediaItemData,
+      id: uuidv4(),
+      fileUrl,
+    };
+    setSongs(prev => [...prev, newMediaItem]);
+    toast.success(`${newMediaItem.isAd ? 'Locução' : 'Música'} "${newMediaItem.title}" adicionada à biblioteca!`);
+  };
+
   return (
     <MyuzeContext.Provider
       value={{
@@ -170,6 +188,7 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
         getStoreById,
         getSongsByIds,
         addPlaybackLog,
+        addMediaItem, // Provide the new function
       }}
     >
       {children}
