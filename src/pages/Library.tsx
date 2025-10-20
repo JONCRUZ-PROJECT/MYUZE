@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from 'react'; // Import useRef
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Upload, Music, Mic, Plus, PlayCircle, PauseCircle, Trash2 } from 'lucide-react'; // Import PauseCircle
+import { Upload, Music, Mic, Plus, PlayCircle, PauseCircle, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useMyuze } from '@/context/MyuzeContext';
 import { Song } from '@/lib/data';
@@ -279,10 +279,13 @@ const Library = () => {
                 <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
                   {musicTracks.map(song => (
                     <div key={song.id} className="flex items-center justify-between bg-myuze-black/50 p-3 rounded-md border border-myuze-purple/30">
-                      <div className="flex-grow">
-                        <p className="font-medium text-myuze-white">{song.title}</p>
-                        <p className="text-sm text-gray-400">{song.artist} - {formatDuration(song.duration)}</p>
-                        <p className="text-xs text-gray-500">Mood: {song.mood}, Gênero: {song.genre}</p>
+                      <div className="flex-grow flex items-center"> {/* Added flex and items-center */}
+                        <Music className="h-5 w-5 mr-2 text-myuze-purple" /> {/* Music icon */}
+                        <div>
+                          <p className="font-medium text-myuze-white">{song.title}</p>
+                          <p className="text-sm text-gray-400">{song.artist} - {formatDuration(song.duration)}</p>
+                          <p className="text-xs text-gray-500">Mood: {song.mood}, Gênero: {song.genre}</p>
+                        </div>
                       </div>
                       <div className="flex space-x-2">
                         <Button variant="ghost" size="icon" onClick={() => handlePlayPause(song)} className="text-myuze-purple hover:text-myuze-purple/80">
@@ -390,10 +393,13 @@ const Library = () => {
                 <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
                   {voiceovers.map(vo => (
                     <div key={vo.id} className="flex items-center justify-between bg-myuze-black/50 p-3 rounded-md border border-myuze-purple/30">
-                      <div className="flex-grow">
-                        <p className="font-medium text-myuze-white">{vo.title}</p>
-                        <p className="text-sm text-gray-400">Tipo: {vo.adType} - {formatDuration(vo.duration)}</p>
-                        <p className="text-xs text-gray-500">{vo.adDescription}</p>
+                      <div className="flex-grow flex items-center"> {/* Added flex and items-center */}
+                        <Mic className="h-5 w-5 mr-2 text-myuze-purple" /> {/* Mic icon */}
+                        <div>
+                          <p className="font-medium text-myuze-white">{vo.title}</p>
+                          <p className="text-sm text-gray-400">Tipo: {vo.adType} - {formatDuration(vo.duration)}</p>
+                          <p className="text-xs text-gray-500">{vo.adDescription}</p>
+                        </div>
                       </div>
                       <div className="flex space-x-2">
                         <Button variant="ghost" size="icon" onClick={() => handlePlayPause(vo)} className="text-myuze-purple hover:text-myuze-purple/80">
