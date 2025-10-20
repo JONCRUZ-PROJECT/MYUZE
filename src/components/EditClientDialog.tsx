@@ -93,7 +93,7 @@ const EditClientDialog = ({ children, client }: EditClientDialogProps) => {
           <DialogTitle className="text-myuze-white">Editar Cliente</DialogTitle>
           <DialogDescription className="text-gray-400">
             Modifique os detalhes do cliente existente. As credenciais de login são geradas automaticamente e não podem ser editadas diretamente.
-          </CardDescription>
+          </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="space-y-2">
