@@ -42,7 +42,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               <Link key={item.name} to={item.path}>
                 <Button
                   variant="ghost"
-                  className={`w-full justify-start text-base py-3 px-4 rounded-lg transition-colors duration-200 ${ // Changed text-lg to text-base and py-6 to py-3
+                  className={`w-full justify-start text-sm py-3 px-4 rounded-lg transition-colors duration-200 ${ // Changed text-base to text-sm
                     isActive
                       ? 'bg-myuze-purple text-myuze-white hover:bg-myuze-purple/90'
                       : 'text-gray-300 hover:bg-myuze-gray-translucent hover:text-myuze-white'
@@ -65,7 +65,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <Button
           variant="ghost"
           onClick={logout}
-          className="w-full justify-start text-base py-3 px-4 rounded-lg text-red-400 hover:bg-myuze-gray-translucent hover:text-red-300" // Changed text-lg to text-base and py-6 to py-3
+          className="w-full justify-start text-sm py-3 px-4 rounded-lg text-red-400 hover:bg-myuze-gray-translucent hover:text-red-300" // Changed text-base to text-sm
         >
           <LogOut className="mr-4 h-6 w-6" />
           Sair
