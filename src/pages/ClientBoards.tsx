@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, Monitor, MapPin, ListMusic, Edit, Trash2, PlayCircle, MoreVertical } from 'lucide-react';
+import { Plus, Monitor, MapPin, ListMusic, Edit, Trash2, PlayCircle, MoreVertical, Share2 } from 'lucide-react'; // Adicionado Share2
 import CreateBoardDialog from '@/components/CreateBoardDialog';
 import EditBoardDialog from '@/components/EditBoardDialog';
 import { useMyuze } from '@/context/MyuzeContext';
@@ -31,6 +31,13 @@ const ClientBoards = () => {
       deleteBoard(boardId);
       toast.success(`Quadro "${boardName}" excluído.`);
     }
+  };
+
+  const handleCopyPlayerLink = (boardId: string) => {
+    const playerLink = `${window.location.origin}/player-auth/${boardId}`;
+    navigator.clipboard.writeText(playerLink)
+      .then(() => toast.success('Link do player copiado para a área de transferência!'))
+      .catch(() => toast.error('Falha ao copiar o link.'));
   };
 
   return (
@@ -91,11 +98,20 @@ const ClientBoards = () => {
                   <ListMusic className="h-4 w-4 mr-2" />
                   <span className="font-medium">Tocando agora:</span> {getPlaylistName(board.playlistId)}
                 </div>
-                <Link to={`/player-auth/${board.id}`}>
-                  <Button className="w-full bg-myuze-purple hover:bg-myuze-purple/80 text-myuze-white">
-                    <PlayCircle className="mr-2 h-4 w-4" /> Acessar Player
+                <div className="flex flex-col space-y-2">
+                  <Link to={`/player-auth/${board.id}`}>
+                    <Button className="w-full bg-myuze-purple hover:bg-myuze-purple/80 text-myuze-white">
+                      <PlayCircle className="mr-2 h-4 w-4" /> Acessar Player
+                    </Button>
+                  </Link>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleCopyPlayerLink(board.id)}
+                    className="w-full border-myuze-purple text-myuze-purple hover:bg-myuze-purple/20 hover:text-myuze-white"
+                  >
+                    <Share2 className="mr-2 h-4 w-4" /> Compartilhar Link do Player
                   </Button>
-                </Link>
+                </div>
               </CardContent>
             </Card>
           ))
