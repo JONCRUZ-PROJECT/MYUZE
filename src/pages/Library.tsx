@@ -370,7 +370,7 @@ const Library = () => {
                     <Label htmlFor="voiceover-type" className="text-myuze-white mb-2 block">Tipo de Locução</Label>
                     <Select
                       value={voiceoverType}
-                      onValueChange={(value: 'propaganda' | 'aviso' | 'promocao' | 'institucional' | '') => setVoiceoverType(value)}
+                      onValueChange={(value) => setVoiceoverType(value as typeof voiceoverType)} // Fixed TypeScript error here
                     >
                       <SelectTrigger id="voiceover-type" className="bg-myuze-black/50 border-myuze-purple text-myuze-white focus:ring-myuze-purple focus:border-myuze-purple">
                         <SelectValue placeholder="Selecione o tipo" />
