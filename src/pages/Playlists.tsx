@@ -1,11 +1,25 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
-import CreatePlaylistDialog from '@/components/CreatePlaylistDialog'; // Import the new component
-import { useMyuze } from '@/context/MyuzeContext'; // Import useMyuze to get playlists
+import { Plus, MoreVertical, Edit, Trash2, Music } from 'lucide-react';
+import CreatePlaylistDialog from '@/components/CreatePlaylistDialog';
+import EditPlaylistDialog from '@/components/EditPlaylistDialog'; // Import the new component
+import { useMyuze } from '@/context/MyuzeContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 
 const Playlists = () => {
-  const { playlists } = useMyuze(); // Get playlists from context
+  const { playlists, deletePlaylist } = useMyuze();
+
+  const handleDelete = (id: string, name: string) => {
+    if (window.confirm(`Tem certeza que deseja excluir a playlist "${name}"?`)) {
+      deletePlaylist(id);
+    }
+  };
 
   return (
     <div className="text-myuze-white space-y-8">
@@ -19,15 +33,34 @@ const Playlists = () => {
       </div>
       <p className="text-lg">Gerencie suas playlists aqui.</p>
 
-      {/* Display existing playlists */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {playlists.length === 0 ? (
           <p className="text-gray-400 col-span-full">Nenhuma playlist criada ainda. Clique em "Nova Playlist" para começar!</p>
         ) : (
           playlists.map(playlist => (
-            <div key={playlist.id} className="bg-myuze-gray-translucent p-6 rounded-lg shadow-xl backdrop-blur-sm border border-myuze-purple/30">
+            <div key={playlist.id} className="bg-myuze-gray-translucent p-6 rounded-lg shadow-xl backdrop-blur-sm border border-myuze-purple/30 relative">
+              <div className="absolute top-4 right-4">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="text-gray-400 hover:text-myuze-white">
+                      <MoreVertical className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="bg-myuze-black border-myuze-purple text-myuze-white">
+                    <EditPlaylistDialog playlist={playlist}>
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer hover:bg-myuze-purple/20">
+                        <Edit className="mr-2 h-4 w-4" /> Editar
+                      </DropdownMenuItem>
+                    </EditPlaylistDialog>
+                    <DropdownMenuSeparator className="bg-myuze-purple/50" />
+                    <DropdownMenuItem onClick={() => handleDelete(playlist.id, playlist.name)} className="text-red-400 cursor-pointer hover:bg-red-400/20 hover:text-red-300">
+                      <Trash2 className="mr-2 h-4 w-4" /> Excluir
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
               <img
-                src={playlist.coverImageUrl || '/public/placeholder.svg'} // Use cover image or placeholder
+                src={playlist.coverImageUrl || '/public/placeholder.svg'}
                 alt={playlist.name}
                 className="w-full h-40 object-cover rounded-md mb-4"
               />
@@ -39,7 +72,6 @@ const Playlists = () => {
               <div className="flex items-center text-gray-400 text-xs mt-1">
                 Mood: <span className="ml-1 text-myuze-purple font-medium">{playlist.mood}</span>
               </div>
-              {/* Add more playlist details or actions here */}
             </div>
           ))
         )}
