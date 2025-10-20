@@ -159,6 +159,7 @@ const Library = () => {
     }
     toast.info(`Simulando exclusão de "${title}" (ID: ${id})...`);
     // In a real app, you'd update the 'songs' state here to remove the item
+    // For now, we'll just show a success toast.
     toast.success(`"${title}" excluído (simulado) com sucesso!`);
   };
 
@@ -279,15 +280,16 @@ const Library = () => {
                 <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
                   {musicTracks.map(song => (
                     <div key={song.id} className="flex items-center justify-between bg-myuze-black/50 p-3 rounded-md border border-myuze-purple/30">
-                      <div className="flex-grow flex items-center"> {/* Added flex and items-center */}
-                        <Music className="h-5 w-5 mr-2 text-myuze-purple" /> {/* Music icon */}
-                        <div>
+                      <div className="flex items-center flex-grow"> {/* Left section: Image + Details */}
+                        {/* Placeholder para imagem da capa do álbum */}
+                        <img src="/public/placeholder.svg" alt="Capa do Álbum" className="h-10 w-10 rounded-md object-cover mr-4" />
+                        <div className="flex flex-col">
                           <p className="font-medium text-myuze-white">{song.title}</p>
-                          <p className="text-sm text-gray-400">{song.artist} - {formatDuration(song.duration)}</p>
-                          <p className="text-xs text-gray-500">Mood: {song.mood}, Gênero: {song.genre}</p>
+                          <p className="text-sm text-gray-400">{song.artist} - {song.genre}</p> {/* Artista e Gênero */}
+                          <p className="text-xs text-gray-500">Duração: {formatDuration(song.duration)}</p> {/* Duração */}
                         </div>
                       </div>
-                      <div className="flex space-x-2">
+                      <div className="flex items-center space-x-2"> {/* Right section: Actions */}
                         <Button variant="ghost" size="icon" onClick={() => handlePlayPause(song)} className="text-myuze-purple hover:text-myuze-purple/80">
                           {playingSongId === song.id ? <PauseCircle className="h-5 w-5" /> : <PlayCircle className="h-5 w-5" />}
                         </Button>
@@ -393,15 +395,16 @@ const Library = () => {
                 <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
                   {voiceovers.map(vo => (
                     <div key={vo.id} className="flex items-center justify-between bg-myuze-black/50 p-3 rounded-md border border-myuze-purple/30">
-                      <div className="flex-grow flex items-center"> {/* Added flex and items-center */}
-                        <Mic className="h-5 w-5 mr-2 text-myuze-purple" /> {/* Mic icon */}
-                        <div>
+                      <div className="flex items-center flex-grow">
+                        <Mic className="h-10 w-10 p-2 rounded-md bg-myuze-purple/20 text-myuze-purple mr-4" /> {/* Ícone maior com fundo */}
+                        <div className="flex flex-col">
                           <p className="font-medium text-myuze-white">{vo.title}</p>
-                          <p className="text-sm text-gray-400">Tipo: {vo.adType} - {formatDuration(vo.duration)}</p>
-                          <p className="text-xs text-gray-500">{vo.adDescription}</p>
+                          <p className="text-sm text-gray-400">Tipo: {vo.adType}</p>
+                          <p className="text-xs text-gray-500">Duração: {formatDuration(vo.duration)}</p>
+                          {vo.adDescription && <p className="text-xs text-gray-500 italic">{vo.adDescription}</p>}
                         </div>
                       </div>
-                      <div className="flex space-x-2">
+                      <div className="flex items-center space-x-2">
                         <Button variant="ghost" size="icon" onClick={() => handlePlayPause(vo)} className="text-myuze-purple hover:text-myuze-purple/80">
                           {playingSongId === vo.id ? <PauseCircle className="h-5 w-5" /> : <PlayCircle className="h-5 w-5" />}
                         </Button>
