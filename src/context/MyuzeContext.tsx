@@ -9,7 +9,6 @@ interface MyuzeContextType {
   clients: Client[];
   playlists: Playlist[];
   songs: Song[];
-  // Removed stores
   playbackLogs: PlaybackLog[];
   currentUser: User | null;
   login: (email: string, passwordHash: string) => boolean;
@@ -18,26 +17,24 @@ interface MyuzeContextType {
   addPlaylist: (playlist: Omit<Playlist, 'id' | 'userId' | 'songs'>, selectedSongIds: string[]) => void;
   updatePlaylist: (id: string, updatedPlaylist: Omit<Playlist, 'id' | 'userId' | 'songs'>, selectedSongIds: string[]) => void;
   deletePlaylist: (id: string) => void;
-  addClient: (client: Omit<Client, 'id' | 'userId'>) => void;
-  updateClient: (id: string, updatedClient: Partial<Client>) => void;
+  addClient: (clientData: Omit<Client, 'id' | 'userId' | 'clientUserId'>, clientLoginEmail: string, clientLoginPasswordHash: string) => void;
+  updateClient: (id: string, updatedClientData: Partial<Client>, clientLoginEmail?: string, clientLoginPasswordHash?: string) => void;
   deleteClient: (id: string) => void;
-  // Removed addStore, updateStore, deleteStore
   getClientById: (id: string) => Client | undefined;
   getPlaylistById: (id: string) => Playlist | undefined;
-  // Removed getStoreById
   getSongsByIds: (ids: string[]) => Song[];
   addPlaybackLog: (log: Omit<PlaybackLog, 'id'>) => void;
   addMediaItem: (mediaItem: Omit<Song, 'id' | 'fileUrl'>, file: File) => void;
+  getClientUserByClientId: (clientId: string) => User | undefined;
 }
 
 const MyuzeContext = createContext<MyuzeContextType | undefined>(undefined);
 
-export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
+export const MyuzeProvider = ({ children }: { ReactNode }) => {
   const [users, setUsers] = useState<User[]>(initialMyuzeState.users);
   const [clients, setClients] = useState<Client[]>(initialMyuzeState.clients);
   const [playlists, setPlaylists] = useState<Playlist[]>(initialMyuzeState.playlists);
   const [songs, setSongs] = useState<Song[]>(initialMyuzeState.songs);
-  // Removed stores state
   const [playbackLogs, setPlaybackLogs] = useState<PlaybackLog[]>(initialMyuzeState.playbackLogs);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
@@ -53,30 +50,30 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
     if (user) {
       setCurrentUser(user);
       saveUserToLocalStorage(user);
-      toast.success(`Welcome back, ${user.email}!`);
+      toast.success(`Bem-vindo(a) de volta, ${user.email}!`);
       return true;
     }
-    toast.error('Invalid credentials.');
+    toast.error('Credenciais inválidas.');
     return false;
   };
 
   const register = (email: string, passwordHash: string): boolean => {
     if (users.some(u => u.email === email)) {
-      toast.error('User with this email already exists.');
+      toast.error('Já existe um usuário com este e-mail.');
       return false;
     }
     const newUser: User = { id: uuidv4(), email, passwordHash, role: 'user' };
     setUsers(prev => [...prev, newUser]);
     setCurrentUser(newUser);
     saveUserToLocalStorage(newUser);
-    toast.success('Registration successful! Welcome to Myuze.');
+    toast.success('Cadastro realizado com sucesso! Bem-vindo(a) ao Myuze.');
     return true;
   };
 
   const logout = () => {
     setCurrentUser(null);
     removeUserFromLocalStorage();
-    toast.info('You have been logged out.');
+    toast.info('Você foi desconectado(a).');
   };
 
   const getSongsByIds = (ids: string[]): Song[] => {
@@ -85,7 +82,7 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
 
   const addPlaylist = (playlistData: Omit<Playlist, 'id' | 'userId' | 'songs'>, selectedSongIds: string[]) => {
     if (!currentUser) {
-      toast.error('You must be logged in to create a playlist.');
+      toast.error('Você precisa estar logado para criar uma playlist.');
       return;
     }
     const newPlaylist: Playlist = {
@@ -95,7 +92,7 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
       songs: getSongsByIds(selectedSongIds),
     };
     setPlaylists(prev => [...prev, newPlaylist]);
-    toast.success(`Playlist "${newPlaylist.name}" created!`);
+    toast.success(`Playlist "${newPlaylist.name}" criada!`);
   };
 
   const updatePlaylist = (id: string, updatedPlaylistData: Omit<Playlist, 'id' | 'userId' | 'songs'>, selectedSongIds: string[]) => {
@@ -106,49 +103,86 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
           : p
       )
     );
-    toast.success(`Playlist updated!`);
+    toast.success(`Playlist atualizada!`);
   };
 
   const deletePlaylist = (id: string) => {
     setPlaylists(prev => prev.filter(p => p.id !== id));
-    toast.success('Playlist deleted.');
+    toast.success('Playlist excluída.');
   };
 
-  const addClient = (clientData: Omit<Client, 'id' | 'userId'>) => {
+  const addClient = (clientData: Omit<Client, 'id' | 'userId' | 'clientUserId'>, clientLoginEmail: string, clientLoginPasswordHash: string) => {
     if (!currentUser) {
       toast.error('Você precisa estar logado para adicionar um cliente.');
       return;
     }
+    if (users.some(u => u.email === clientLoginEmail)) {
+      toast.error('Já existe um usuário com este e-mail de login para o cliente.');
+      return;
+    }
+
+    const newClientUserId = uuidv4();
+    const newClientUser: User = {
+      id: newClientUserId,
+      email: clientLoginEmail,
+      passwordHash: clientLoginPasswordHash,
+      role: 'client',
+    };
+
     const newClient: Client = {
       ...clientData,
       id: uuidv4(),
-      userId: currentUser.id,
+      userId: currentUser.id, // Admin user who created it
+      clientUserId: newClientUserId, // The user account for this client
     };
+
+    newClientUser.clientId = newClient.id; // Link client user to client
+
+    setUsers(prev => [...prev, newClientUser]);
     setClients(prev => [...prev, newClient]);
-    toast.success(`Cliente "${newClient.name}" adicionado!`);
+    toast.success(`Cliente "${newClient.name}" e conta de login criados!`);
   };
 
-  const updateClient = (id: string, updatedClientData: Partial<Client>) => {
-    setClients(prev =>
-      prev.map(c =>
-        c.id === id
-          ? { ...c, ...updatedClientData }
-          : c
-      )
+  const updateClient = (id: string, updatedClientData: Partial<Client>, clientLoginEmail?: string, clientLoginPasswordHash?: string) => {
+    setClients(prevClients =>
+      prevClients.map(c => {
+        if (c.id === id) {
+          // Update client's associated user if email/password are provided
+          if (c.clientUserId && (clientLoginEmail || clientLoginPasswordHash)) {
+            setUsers(prevUsers =>
+              prevUsers.map(u => {
+                if (u.id === c.clientUserId) {
+                  return {
+                    ...u,
+                    email: clientLoginEmail !== undefined ? clientLoginEmail : u.email,
+                    passwordHash: clientLoginPasswordHash !== undefined ? clientLoginPasswordHash : u.passwordHash,
+                  };
+                }
+                return u;
+              })
+            );
+          }
+          return { ...c, ...updatedClientData };
+        }
+        return c;
+      })
     );
     toast.success(`Cliente atualizado!`);
   };
 
   const deleteClient = (id: string) => {
+    const clientToDelete = clients.find(c => c.id === id);
+    if (clientToDelete && clientToDelete.clientUserId) {
+      setUsers(prev => prev.filter(u => u.id !== clientToDelete.clientUserId));
+    }
     setClients(prev => prev.filter(c => c.id !== id));
     toast.success('Cliente excluído.');
   };
 
-  // Removed addStore, updateStore, deleteStore functions
-
   const getClientById = (id: string) => clients.find(c => c.id === id);
   const getPlaylistById = (id: string) => playlists.find(p => p.id === id);
-  // Removed getStoreById
+  const getClientUserByClientId = (clientId: string) => users.find(u => u.clientId === clientId);
+
 
   const addPlaybackLog = (log: Omit<PlaybackLog, 'id'>) => {
     const newLog: PlaybackLog = { ...log, id: uuidv4() };
@@ -178,7 +212,6 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
         clients,
         playlists,
         songs,
-        // Removed stores
         playbackLogs,
         currentUser,
         login,
@@ -190,13 +223,12 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
         addClient,
         updateClient,
         deleteClient,
-        // Removed addStore, updateStore, deleteStore
         getClientById,
         getPlaylistById,
-        // Removed getStoreById
         getSongsByIds,
         addPlaybackLog,
         addMediaItem,
+        getClientUserByClientId,
       }}
     >
       {children}

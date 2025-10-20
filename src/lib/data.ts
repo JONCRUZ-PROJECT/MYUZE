@@ -4,20 +4,20 @@ export interface User {
   id: string;
   email: string;
   passwordHash: string; // In a real app, this would be hashed
-  role: 'admin' | 'user';
+  role: 'admin' | 'user' | 'client'; // Adicionado 'client'
+  clientId?: string; // ID do cliente associado, se o usuário for um cliente
 }
 
 export interface Client {
   id: string;
-  userId: string; // The user who owns this client
+  userId: string; // O usuário admin que criou este cliente
+  clientUserId?: string; // O ID do usuário que representa o login deste cliente
   name: string; // Client company name
   contactEmail: string;
   contactPhone?: string;
   logoUrl?: string; // Adicionado para o logo da empresa
   // You can add more fields here like address, industry, etc.
 }
-
-// Removed Store interface
 
 export interface Playlist {
   id: string;
@@ -55,7 +55,6 @@ export interface Song {
 
 export interface PlaybackLog {
   id: string;
-  // Removed storeId
   playlistId: string;
   songId: string;
   timestamp: string; // ISO string
@@ -64,15 +63,18 @@ export interface PlaybackLog {
 
 // --- Mock Data ---
 
-const mockUsers: User[] = [
-  { id: uuidv4(), email: 'user@example.com', passwordHash: 'password123', role: 'user' },
-  { id: uuidv4(), email: 'admin@example.com', passwordHash: 'admin123', role: 'admin' },
-];
+const mockAdminUser: User = { id: uuidv4(), email: 'admin@example.com', passwordHash: 'admin123', role: 'admin' };
+const mockUser: User = { id: uuidv4(), email: 'user@example.com', passwordHash: 'password123', role: 'user' };
+
+const mockClientUser1: User = { id: uuidv4(), email: 'client1@example.com', passwordHash: 'client123', role: 'client' };
+const mockClientUser2: User = { id: uuidv4(), email: 'client2@example.com', passwordHash: 'client123', role: 'client' };
+
 
 const mockClients: Client[] = [
   {
     id: uuidv4(),
-    userId: mockUsers[0].id,
+    userId: mockAdminUser.id,
+    clientUserId: mockClientUser1.id,
     name: 'Café Central Ltda.',
     contactEmail: 'contato@cafecentral.com.br',
     contactPhone: '(11) 98765-4321',
@@ -80,12 +82,18 @@ const mockClients: Client[] = [
   },
   {
     id: uuidv4(),
-    userId: mockUsers[0].id,
+    userId: mockAdminUser.id,
+    clientUserId: mockClientUser2.id,
     name: 'Boutique Fashion',
     contactEmail: 'fashion@boutique.com',
     logoUrl: '/public/placeholder.svg', // Exemplo de logo
   },
 ];
+
+// Link client users to their clients
+mockClientUser1.clientId = mockClients[0].id;
+mockClientUser2.clientId = mockClients[1].id;
+
 
 const mockSongs: Song[] = [
   { id: uuidv4(), title: 'Morning Chill', artist: 'Lo-fi Beats', duration: 180, fileUrl: '/audio/morning-chill.mp3', mood: 'calm', genre: 'lo-fi' },
@@ -100,7 +108,7 @@ const mockSongs: Song[] = [
 const mockPlaylists: Playlist[] = [
   {
     id: uuidv4(),
-    userId: mockUsers[0].id,
+    userId: mockAdminUser.id,
     name: 'Morning Vibes',
     description: 'Músicas calmas para começar o dia.',
     style: 'lo-fi',
@@ -113,7 +121,7 @@ const mockPlaylists: Playlist[] = [
   },
   {
     id: uuidv4(),
-    userId: mockUsers[0].id,
+    userId: mockAdminUser.id,
     name: 'Afternoon Boost',
     description: 'Músicas energéticas para a tarde.',
     style: 'pop',
@@ -126,7 +134,7 @@ const mockPlaylists: Playlist[] = [
   },
   {
     id: uuidv4(),
-    userId: mockUsers[0].id,
+    userId: mockAdminUser.id,
     name: 'Evening Jazz',
     description: 'Jazz suave para o fim do dia.',
     style: 'jazz',
@@ -139,14 +147,11 @@ const mockPlaylists: Playlist[] = [
   },
 ];
 
-// Removed mockStores
-
 export const initialMyuzeState = {
-  users: mockUsers,
+  users: [mockAdminUser, mockUser, mockClientUser1, mockClientUser2], // Incluir usuários clientes
   clients: mockClients,
   playlists: mockPlaylists,
   songs: mockSongs, // All available songs, including ads
-  // Removed stores
   playbackLogs: [] as PlaybackLog[],
   currentUser: null as User | null,
 };
