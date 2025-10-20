@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react'; // Import useRef
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,15 +8,15 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Upload, Music, Mic, Plus, PlayCircle, Trash2 } from 'lucide-react'; // Import PlayCircle and Trash2 icons
+import { Upload, Music, Mic, Plus, PlayCircle, PauseCircle, Trash2 } from 'lucide-react'; // Import PauseCircle
 import { toast } from 'sonner';
-import { useMyuze } from '@/context/MyuzeContext'; // Import useMyuze
-import { Song } from '@/lib/data'; // Import Song interface
+import { useMyuze } from '@/context/MyuzeContext';
+import { Song } from '@/lib/data';
 
 const Library = () => {
-  const { songs, addMediaItem } = useMyuze(); // Use context
+  const { songs, addMediaItem } = useMyuze();
   const [songFile, setSongFile] = useState<File | null>(null);
-  const [songTitle, setSongTitle] = useState<string>(''); // New state for song title
+  const [songTitle, setSongTitle] = useState<string>('');
   const [songMood, setSongMood] = useState<string>('');
   const [songArtist, setSongArtist] = useState<string>('MYUZE');
   const [songGenre, setSongGenre] = useState<string>('');
@@ -25,10 +25,14 @@ const Library = () => {
   const [voiceoverFile, setVoiceoverFile] = useState<File | null>(null);
   const [voiceoverName, setVoiceoverName] = useState<string>('');
   const [voiceoverType, setVoiceoverType] = useState<'propaganda' | 'aviso' | 'promocao' | 'institucional' | ''>('');
-  const [voiceoverDuration, setVoiceoverDuration] = useState<number>(0); // Store duration in seconds
-  const [voiceoverDurationDisplay, setVoiceoverDurationDisplay] = useState<string>(''); // For display
+  const [voiceoverDuration, setVoiceoverDuration] = useState<number>(0);
+  const [voiceoverDurationDisplay, setVoiceoverDurationDisplay] = useState<string>('');
   const [voiceoverDescription, setVoiceoverDescription] = useState<string>('');
   const [showVoiceoverUploadForm, setShowVoiceoverUploadForm] = useState(false);
+
+  // State for audio playback
+  const [playingSongId, setPlayingSongId] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const musicTracks = songs.filter(item => !item.isAd);
   const voiceovers = songs.filter(item => item.isAd);
@@ -43,7 +47,7 @@ const Library = () => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
       setSongFile(file);
-      setSongTitle(file.name.split('.').slice(0, -1).join('.')); // Set title from filename
+      setSongTitle(file.name.split('.').slice(0, -1).join('.'));
       toast.success(`Música "${file.name}" selecionada para upload.`);
     }
   };
@@ -97,7 +101,7 @@ const Library = () => {
 
     const newVoiceover: Omit<Song, 'id' | 'fileUrl'> = {
       title: voiceoverName,
-      artist: 'MYUZE', // Voiceovers are typically from Myuze or a client, fixed for now
+      artist: 'MYUZE',
       duration: voiceoverDuration,
       isAd: true,
       adType: voiceoverType,
@@ -114,16 +118,47 @@ const Library = () => {
     setShowVoiceoverUploadForm(false);
   };
 
-  const handlePlay = (fileUrl: string, title: string) => {
-    const audio = new Audio(fileUrl);
-    audio.play().catch(e => toast.error(`Erro ao reproduzir "${title}": ${e.message}`));
-    toast.info(`Reproduzindo: "${title}"`);
+  const handlePlayPause = (song: Song) => {
+    if (audioRef.current && playingSongId === song.id) {
+      // If this song is already playing, pause it
+      audioRef.current.pause();
+      setPlayingSongId(null);
+      toast.info(`Pausado: "${song.title}"`);
+    } else {
+      // If another song is playing, pause it first
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+
+      // Play the new song
+      const audio = new Audio(song.fileUrl);
+      audio.play().then(() => {
+        audioRef.current = audio;
+        setPlayingSongId(song.id);
+        toast.info(`Reproduzindo: "${song.title}"`);
+      }).catch(e => {
+        toast.error(`Erro ao reproduzir "${song.title}": ${e.message}`);
+        setPlayingSongId(null);
+      });
+
+      // Reset playing state when current song ends
+      audio.onended = () => {
+        setPlayingSongId(null);
+        audioRef.current = null;
+        toast.info(`Reprodução de "${song.title}" finalizada.`);
+      };
+    }
   };
 
-  // In a real app, you'd implement actual deletion logic
   const handleDelete = (id: string, title: string) => {
+    // If the deleted song is currently playing, stop it
+    if (playingSongId === id && audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+      setPlayingSongId(null);
+    }
     toast.info(`Simulando exclusão de "${title}" (ID: ${id})...`);
-    // For now, we'll just show a toast. Actual deletion would involve updating the 'songs' state.
+    // In a real app, you'd update the 'songs' state here to remove the item
     toast.success(`"${title}" excluído (simulado) com sucesso!`);
   };
 
@@ -250,8 +285,8 @@ const Library = () => {
                         <p className="text-xs text-gray-500">Mood: {song.mood}, Gênero: {song.genre}</p>
                       </div>
                       <div className="flex space-x-2">
-                        <Button variant="ghost" size="icon" onClick={() => handlePlay(song.fileUrl, song.title)} className="text-myuze-purple hover:text-myuze-purple/80">
-                          <PlayCircle className="h-5 w-5" />
+                        <Button variant="ghost" size="icon" onClick={() => handlePlayPause(song)} className="text-myuze-purple hover:text-myuze-purple/80">
+                          {playingSongId === song.id ? <PauseCircle className="h-5 w-5" /> : <PlayCircle className="h-5 w-5" />}
                         </Button>
                         <Button variant="ghost" size="icon" onClick={() => handleDelete(song.id, song.title)} className="text-red-400 hover:text-red-300">
                           <Trash2 className="h-5 w-5" />
@@ -301,7 +336,7 @@ const Library = () => {
                     id="voiceover-name"
                     type="text"
                     value={voiceoverName}
-                    onChange={(e) => setVoiceoverName(e.target.value)} // Allow editing name
+                    onChange={(e) => setVoiceoverName(e.target.value)}
                     placeholder="Nome do arquivo (automático)"
                     className="bg-myuze-black/50 border-myuze-purple text-myuze-white placeholder:text-gray-400 focus:ring-myuze-purple focus:border-myuze-purple"
                   />
@@ -361,8 +396,8 @@ const Library = () => {
                         <p className="text-xs text-gray-500">{vo.adDescription}</p>
                       </div>
                       <div className="flex space-x-2">
-                        <Button variant="ghost" size="icon" onClick={() => handlePlay(vo.fileUrl, vo.title)} className="text-myuze-purple hover:text-myuze-purple/80">
-                          <PlayCircle className="h-5 w-5" />
+                        <Button variant="ghost" size="icon" onClick={() => handlePlayPause(vo)} className="text-myuze-purple hover:text-myuze-purple/80">
+                          {playingSongId === vo.id ? <PauseCircle className="h-5 w-5" /> : <PlayCircle className="h-5 w-5" />}
                         </Button>
                         <Button variant="ghost" size="icon" onClick={() => handleDelete(vo.id, vo.title)} className="text-red-400 hover:text-red-300">
                           <Trash2 className="h-5 w-5" />
