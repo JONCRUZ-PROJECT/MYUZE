@@ -10,12 +10,12 @@ import { MyuzeProvider, useMyuze } from "./context/MyuzeContext";
 import DashboardLayout from "./components/DashboardLayout";
 import DashboardHome from "./pages/DashboardHome";
 import Playlists from "./pages/Playlists";
-import Stores from "./pages/Stores";
+import Installations from "./pages/Installations"; // Changed from Stores
 import Player from "./pages/Player";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
-import Library from "./pages/Library"; // Import the new Library page
-import React from "react"; // Import React for JSX
+import Library from "./pages/Library";
+import React from "react";
 
 const queryClient = new QueryClient();
 
@@ -56,17 +56,17 @@ const AppContent = () => {
           }
         />
         <Route
-          path="/stores"
+          path="/installations" // Changed from /stores
           element={
             <ProtectedRoute>
               <DashboardLayout>
-                <Stores />
+                <Installations /> {/* Changed from Stores */}
               </DashboardLayout>
             </ProtectedRoute>
           }
         />
         <Route
-          path="/library" // New route for Library
+          path="/library"
           element={
             <ProtectedRoute>
               <DashboardLayout>

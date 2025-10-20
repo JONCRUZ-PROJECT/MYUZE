@@ -46,12 +46,12 @@ const DashboardHome = () => {
 
         <Card className="bg-myuze-gray-translucent text-myuze-white border-none shadow-xl backdrop-blur-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-300">Lojas Conectadas</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-300">Instalações Conectadas</CardTitle> {/* Changed 'Lojas Conectadas' */}
             <Store className="h-5 w-5 text-myuze-purple" />
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{onlineStores}</div>
-            <p className="text-xs text-gray-400">Lojas atualmente online</p>
+            <p className="text-xs text-gray-400">Instalações atualmente online</p> {/* Changed 'Lojas' */}
           </CardContent>
         </Card>
 

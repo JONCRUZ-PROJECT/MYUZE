@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 
 interface MyuzeContextType {
   users: User[];
-  stores: Store[];
+  stores: Store[]; // Still refers to Store interface, but conceptually 'installations'
   playlists: Playlist[];
   songs: Song[];
   playbackLogs: PlaybackLog[];
@@ -24,7 +24,7 @@ interface MyuzeContextType {
   getStoreById: (id: string) => Store | undefined;
   getSongsByIds: (ids: string[]) => Song[];
   addPlaybackLog: (log: Omit<PlaybackLog, 'id'>) => void;
-  addMediaItem: (mediaItem: Omit<Song, 'id' | 'fileUrl'>, file: File) => void; // New function
+  addMediaItem: (mediaItem: Omit<Song, 'id' | 'fileUrl'>, file: File) => void;
 }
 
 const MyuzeContext = createContext<MyuzeContextType | undefined>(undefined);
@@ -112,7 +112,7 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
 
   const addStore = (storeData: Omit<Store, 'id' | 'userId' | 'status' | 'currentPlaylistId' | 'lastPlayedSong' | 'playbackStartTime'>) => {
     if (!currentUser) {
-      toast.error('You must be logged in to add a store.');
+      toast.error('Você precisa estar logado para adicionar uma instalação.'); // Changed 'loja' to 'instalação'
       return;
     }
     const newStore: Store = {
@@ -122,7 +122,7 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
       status: 'offline', // Default status
     };
     setStores(prev => [...prev, newStore]);
-    toast.success(`Store "${newStore.name}" added!`);
+    toast.success(`Instalação "${newStore.name}" adicionada!`); // Changed 'Loja' to 'Instalação'
   };
 
   const updateStore = (id: string, updatedStore: Partial<Store>) => {
@@ -133,12 +133,12 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
           : s
       )
     );
-    toast.success('Store updated!');
+    toast.success('Instalação atualizada!'); // Changed 'Loja' to 'Instalação'
   };
 
   const deleteStore = (id: string) => {
     setStores(prev => prev.filter(s => s.id !== id));
-    toast.success('Store deleted.');
+    toast.success('Instalação excluída.'); // Changed 'Loja' to 'Instalação'
   };
 
   const getPlaylistById = (id: string) => playlists.find(p => p.id === id);
@@ -188,7 +188,7 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
         getStoreById,
         getSongsByIds,
         addPlaybackLog,
-        addMediaItem, // Provide the new function
+        addMediaItem,
       }}
     >
       {children}

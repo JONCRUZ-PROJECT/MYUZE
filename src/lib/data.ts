@@ -7,7 +7,7 @@ export interface User {
   role: 'admin' | 'user';
 }
 
-export interface Store {
+export interface Store { // Renamed from Store to Installation conceptually, but keeping interface name for now
   id: string;
   userId: string;
   name: string;
@@ -123,7 +123,7 @@ const mockStores: Store[] = [
   {
     id: uuidv4(),
     userId: mockUsers[0].id,
-    name: 'Coffee Haven',
+    name: 'Instalação Café Central', // Changed 'Coffee Haven' to 'Instalação Café Central'
     status: 'online',
     currentPlaylistId: mockPlaylists[0].id,
     lastPlayedSong: mockSongs[0].title,
@@ -132,7 +132,7 @@ const mockStores: Store[] = [
   {
     id: uuidv4(),
     userId: mockUsers[0].id,
-    name: 'Fashion Boutique',
+    name: 'Instalação Boutique Fashion', // Changed 'Fashion Boutique' to 'Instalação Boutique Fashion'
     status: 'offline',
   },
 ];
