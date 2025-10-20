@@ -2,10 +2,10 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, Wifi } from 'lucide-react';
+import { Plus, Wifi, Store as StoreIcon } from 'lucide-react'; // Added StoreIcon for client grouping
 import { useMyuze } from '@/context/MyuzeContext';
-import CreateStoreDialog from '@/components/CreateStoreDialog'; // Updated import
-import StoreCard from '@/components/StoreCard'; // Updated import
+import CreateStoreDialog from '@/components/CreateStoreDialog';
+import StoreCard from '@/components/StoreCard';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 const Stores = () => {
@@ -17,9 +17,9 @@ const Stores = () => {
     <div className="text-myuze-white space-y-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-4xl font-bold">Lojas</h1>
-        {/* The CreateStoreDialog here would be for a generic store,
-            but we're focusing on adding it via ClientCard for now.
-            Keeping this for future flexibility if needed. */}
+        {/* O botão 'Nova Loja' aqui seria para uma loja genérica,
+            mas estamos focando em adicioná-la via ClientCard por enquanto.
+            Mantendo isso para flexibilidade futura, se necessário. */}
         {/* <CreateStoreDialog clientId={clients[0]?.id || ''}>
           <Button className="bg-myuze-purple hover:bg-myuze-purple/80 text-myuze-white">
             <Plus className="mr-2 h-4 w-4" /> Nova Loja
@@ -42,14 +42,38 @@ const Stores = () => {
         </CardContent>
       </Card>
 
-      {/* List of Store Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {stores.length === 0 ? (
-          <p className="text-gray-400 col-span-full">Nenhuma loja cadastrada ainda. Adicione uma através da página de Clientes!</p>
+      {/* Grouped List of Store Cards by Client */}
+      <div className="space-y-8">
+        {clients.length === 0 ? (
+          <p className="text-gray-400 col-span-full">Nenhum cliente cadastrado ainda. Adicione um cliente para começar a gerenciar suas lojas!</p>
         ) : (
-          stores.map(store => (
-            <StoreCard key={store.id} store={store} />
-          ))
+          clients.map(client => {
+            const clientStores = stores.filter(store => store.clientId === client.id);
+            return (
+              <Card key={client.id} className="bg-myuze-gray-translucent text-myuze-white border-none shadow-xl backdrop-blur-sm p-6">
+                <CardHeader className="p-0 mb-4">
+                  <CardTitle className="text-2xl font-bold text-myuze-white flex items-center">
+                    <StoreIcon className="h-6 w-6 mr-3 text-myuze-purple" />
+                    {client.name}
+                  </CardTitle>
+                  <CardDescription className="text-gray-300 mt-1">
+                    {clientStores.length} loja(s) associada(s)
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-0 mt-4">
+                  {clientStores.length === 0 ? (
+                    <p className="text-gray-400">Nenhuma loja cadastrada para este cliente ainda.</p>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {clientStores.map(store => (
+                        <StoreCard key={store.id} store={store} />
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })
         )}
       </div>
     </div>
