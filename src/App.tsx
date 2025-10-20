@@ -14,6 +14,7 @@ import Stores from "./pages/Stores";
 import Player from "./pages/Player";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
+import Library from "./pages/Library"; // Import the new Library page
 import React from "react"; // Import React for JSX
 
 const queryClient = new QueryClient();
@@ -60,6 +61,16 @@ const AppContent = () => {
             <ProtectedRoute>
               <DashboardLayout>
                 <Stores />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/library" // New route for Library
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Library />
               </DashboardLayout>
             </ProtectedRoute>
           }
