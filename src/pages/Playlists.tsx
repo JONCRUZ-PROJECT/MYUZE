@@ -1,8 +1,8 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, MoreVertical, Edit, Trash2, Music } from 'lucide-react';
+import { Plus, MoreVertical, Edit, Trash2, Music, Clock } from 'lucide-react';
 import CreatePlaylistDialog from '@/components/CreatePlaylistDialog';
-import EditPlaylistDialog from '@/components/EditPlaylistDialog'; // Import the new component
+import EditPlaylistDialog from '@/components/EditPlaylistDialog';
 import { useMyuze } from '@/context/MyuzeContext';
 import {
   DropdownMenu,
@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import { Badge } from '@/components/ui/badge'; // Import Badge component
 
 const Playlists = () => {
   const { playlists, deletePlaylist } = useMyuze();
@@ -19,6 +20,12 @@ const Playlists = () => {
     if (window.confirm(`Tem certeza que deseja excluir a playlist "${name}"?`)) {
       deletePlaylist(id);
     }
+  };
+
+  const formatTotalDuration = (songs: { duration: number }[]) => {
+    const totalSeconds = songs.reduce((sum, song) => sum + song.duration, 0);
+    const totalMinutes = Math.ceil(totalSeconds / 60); // Arredonda para cima para minutos
+    return `${totalMinutes}min`;
   };
 
   return (
@@ -66,11 +73,16 @@ const Playlists = () => {
               />
               <h3 className="text-xl font-semibold text-myuze-white mb-2">{playlist.name}</h3>
               <p className="text-gray-300 text-sm mb-3">{playlist.description}</p>
-              <div className="flex items-center text-gray-400 text-xs">
-                <Music className="h-4 w-4 mr-1" /> {playlist.songs.length} músicas/locuções
-              </div>
-              <div className="flex items-center text-gray-400 text-xs mt-1">
-                Mood: <span className="ml-1 text-myuze-purple font-medium">{playlist.mood}</span>
+              <div className="flex items-center flex-wrap gap-2 mt-2"> {/* Use flex-wrap and gap for badges */}
+                <Badge variant="outline" className="border-myuze-purple text-myuze-purple bg-myuze-purple/20">
+                  Mood: {playlist.mood}
+                </Badge>
+                <Badge variant="outline" className="border-myuze-purple text-myuze-purple bg-myuze-purple/20">
+                  <Music className="h-3 w-3 mr-1" /> {playlist.songs.length} itens
+                </Badge>
+                <Badge variant="outline" className="border-myuze-purple text-myuze-purple bg-myuze-purple/20">
+                  <Clock className="h-3 w-3 mr-1" /> {formatTotalDuration(playlist.songs)}
+                </Badge>
               </div>
             </div>
           ))
