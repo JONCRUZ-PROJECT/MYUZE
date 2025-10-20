@@ -10,7 +10,6 @@ import { MyuzeProvider, useMyuze } from "./context/MyuzeContext";
 import DashboardLayout from "./components/DashboardLayout";
 import DashboardHome from "./pages/DashboardHome";
 import Playlists from "./pages/Playlists";
-import Installations from "./pages/Installations"; // Changed from Stores
 import Player from "./pages/Player";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
@@ -55,16 +54,7 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/installations" // Changed from /stores
-          element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <Installations /> {/* Changed from Stores */}
-              </DashboardLayout>
-            </ProtectedRoute>
-          }
-        />
+        {/* The /installations route has been removed */}
         <Route
           path="/library"
           element={

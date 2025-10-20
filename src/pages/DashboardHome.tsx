@@ -1,13 +1,12 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useMyuze } from '@/context/MyuzeContext';
-import { Users, ListMusic, Store, Clock } from 'lucide-react';
+import { Users, ListMusic, Clock } from 'lucide-react'; // Removed Store icon
 
 const DashboardHome = () => {
-  const { stores, playlists, users, playbackLogs } = useMyuze();
+  const { playlists, users, playbackLogs } = useMyuze(); // Removed stores
 
   const totalActiveCompanies = users.length; // Assuming each user represents a company
-  const onlineStores = stores.filter(store => store.status === 'online').length;
   const totalPlaylists = playlists.length;
 
   // Calculate total playback hours (simplified for MVP)
@@ -21,7 +20,7 @@ const DashboardHome = () => {
     <div className="space-y-8">
       <h1 className="text-4xl font-bold text-myuze-white mb-6">Dashboard</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"> {/* Adjusted grid columns */}
         <Card className="bg-myuze-gray-translucent text-myuze-white border-none shadow-xl backdrop-blur-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-300">Empresas Ativas</CardTitle>
@@ -44,16 +43,7 @@ const DashboardHome = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-myuze-gray-translucent text-myuze-white border-none shadow-xl backdrop-blur-sm">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-300">Instalações Conectadas</CardTitle> {/* Changed 'Lojas Conectadas' */}
-            <Store className="h-5 w-5 text-myuze-purple" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{onlineStores}</div>
-            <p className="text-xs text-gray-400">Instalações atualmente online</p> {/* Changed 'Lojas' */}
-          </CardContent>
-        </Card>
+        {/* Removed Installations Connected card */}
 
         <Card className="bg-myuze-gray-translucent text-myuze-white border-none shadow-xl backdrop-blur-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

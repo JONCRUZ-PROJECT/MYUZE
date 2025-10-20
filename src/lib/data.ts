@@ -7,16 +7,7 @@ export interface User {
   role: 'admin' | 'user';
 }
 
-export interface Store { // Renamed from Store to Installation conceptually, but keeping interface name for now
-  id: string;
-  userId: string;
-  name: string;
-  address: string; // Added address field
-  status: 'online' | 'offline';
-  currentPlaylistId?: string;
-  lastPlayedSong?: string;
-  playbackStartTime?: string; // ISO string
-}
+// Removed Store interface
 
 export interface Playlist {
   id: string;
@@ -54,7 +45,7 @@ export interface Song {
 
 export interface PlaybackLog {
   id: string;
-  storeId: string;
+  // storeId: string; // Removed storeId
   playlistId: string;
   songId: string;
   timestamp: string; // ISO string
@@ -120,29 +111,11 @@ const mockPlaylists: Playlist[] = [
   },
 ];
 
-const mockStores: Store[] = [
-  {
-    id: uuidv4(),
-    userId: mockUsers[0].id,
-    name: 'Instalação Café Central', // Changed 'Coffee Haven' to 'Instalação Café Central'
-    address: 'Av. Paulista, 1000 - São Paulo', // Added address
-    status: 'online',
-    currentPlaylistId: mockPlaylists[0].id,
-    lastPlayedSong: mockSongs[0].title,
-    playbackStartTime: new Date().toISOString(),
-  },
-  {
-    id: uuidv4(),
-    userId: mockUsers[0].id,
-    name: 'Instalação Boutique Fashion', // Changed 'Fashion Boutique' to 'Instalação Boutique Fashion'
-    address: 'Rua Oscar Freire, 500 - São Paulo', // Added address
-    status: 'offline',
-  },
-];
+// Removed mockStores data
 
 export const initialMyuzeState = {
   users: mockUsers,
-  stores: mockStores,
+  // stores: mockStores, // Removed stores from initial state
   playlists: mockPlaylists,
   songs: mockSongs, // All available songs, including ads
   playbackLogs: [] as PlaybackLog[],
