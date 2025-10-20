@@ -4,6 +4,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Plus, Monitor, MapPin, ListMusic, Edit, Trash2, PlayCircle } from 'lucide-react';
 import CreateBoardDialog from '@/components/CreateBoardDialog';
+import EditBoardDialog from '@/components/EditBoardDialog'; // Importar o novo diálogo
 import { useMyuze } from '@/context/MyuzeContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
@@ -14,7 +15,7 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
-import { Link } from 'react-router-dom'; // Importar Link
+import { Link } from 'react-router-dom';
 
 const ClientBoards = () => {
   const { boards, playlists, currentUser, deleteBoard } = useMyuze();
@@ -59,9 +60,11 @@ const ClientBoards = () => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="bg-myuze-black border-myuze-purple text-myuze-white">
-                    <DropdownMenuItem className="cursor-pointer hover:bg-myuze-purple/20">
-                      <Edit className="mr-2 h-4 w-4" /> Editar
-                    </DropdownMenuItem>
+                    <EditBoardDialog board={board}> {/* Usando o novo diálogo de edição */}
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer hover:bg-myuze-purple/20">
+                        <Edit className="mr-2 h-4 w-4" /> Editar
+                      </DropdownMenuItem>
+                    </EditBoardDialog>
                     <DropdownMenuSeparator className="bg-myuze-purple/50" />
                     <DropdownMenuItem onClick={() => handleDeleteBoard(board.id, board.name)} className="text-red-400 cursor-pointer hover:bg-red-400/20 hover:text-red-300">
                       <Trash2 className="mr-2 h-4 w-4" /> Excluir
