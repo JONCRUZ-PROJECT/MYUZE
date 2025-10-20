@@ -18,6 +18,9 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Poppins', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -51,6 +54,12 @@ export default {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+        },
+        myuze: {
+          purple: '#7A3DF0',
+          black: '#0E0E10',
+          white: '#FFFFFF',
+          'gray-translucent': 'rgba(30, 30, 30, 0.56)', // #1E1E1E90
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
