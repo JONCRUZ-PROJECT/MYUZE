@@ -21,6 +21,7 @@ import AdminClientView from "./pages/AdminClientView";
 import ClientBoards from "./pages/ClientBoards";
 import BoardPlayerAuth from "./pages/BoardPlayerAuth"; // Importar o novo componente de autenticação do player
 import BoardPlayer from "./pages/BoardPlayer"; // Importar o novo componente do player
+import ClientPlaylistsPage from "./pages/ClientPlaylistsPage"; // Importar o novo componente ClientPlaylistsPage
 import React from "react";
 
 const queryClient = new QueryClient();
@@ -166,10 +167,7 @@ const AppContent = () => {
           element={
             <ProtectedRoute allowedRoles={['client']}>
               <ClientDashboardLayout>
-                <div className="text-myuze-white p-8">
-                  <h1 className="text-4xl font-bold mb-4">Minhas Playlists (Cliente)</h1>
-                  <p className="text-xl text-gray-300">Aqui o cliente verá suas playlists atribuídas.</p>
-                </div>
+                <ClientPlaylistsPage /> {/* Usando o novo componente aqui */}
               </ClientDashboardLayout>
             </ProtectedRoute>
           }
@@ -216,7 +214,7 @@ const AppContent = () => {
         <Route
           path="/player-board/:boardId"
           element={
-            <PlayerProtectedRoute> {/* Não é mais necessário passar boardId como prop aqui */}
+            <PlayerProtectedRoute>
               <BoardPlayer />
             </PlayerProtectedRoute>
           }
