@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, ListMusic, Store, BarChart2, Settings, LogOut, Menu, BookOpen } from 'lucide-react'; // Import BookOpen icon
+import { Home, ListMusic, Store, BarChart2, Settings, LogOut, Menu, BookOpen, LayoutDashboard } from 'lucide-react'; // Import LayoutDashboard
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useMyuze } from '@/context/MyuzeContext';
@@ -14,10 +14,10 @@ interface DashboardLayoutProps {
 }
 
 const navItems = [
-  { name: 'Início', path: '/dashboard', icon: Home },
+  { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard }, // Changed from Início to Dashboard with new icon
   { name: 'Playlists', path: '/playlists', icon: ListMusic },
   { name: 'Lojas', path: '/stores', icon: Store },
-  { name: 'Biblioteca', path: '/library', icon: BookOpen }, // New Library item
+  { name: 'Biblioteca', path: '/library', icon: BookOpen },
   { name: 'Relatórios', path: '/reports', icon: BarChart2 },
   { name: 'Configurações', path: '/settings', icon: Settings },
 ];
@@ -32,27 +32,30 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       <div className="mb-8 text-center">
         <img src="/logo/logomyuzew.png" alt="Myuze Logo" className="h-16 mx-auto" />
       </div>
-      <nav className="flex-grow space-y-2">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = location.pathname === item.path;
-          return (
-            <Link key={item.name} to={item.path}>
-              <Button
-                variant="ghost"
-                className={`w-full justify-start text-lg py-6 px-4 rounded-lg transition-colors duration-200 ${
-                  isActive
-                    ? 'bg-myuze-purple text-myuze-white hover:bg-myuze-purple/90'
-                    : 'text-gray-300 hover:bg-myuze-gray-translucent hover:text-myuze-white'
-                }`}
-              >
-                <Icon className="mr-4 h-6 w-6" />
-                {item.name}
-              </Button>
-            </Link>
-          );
-        })}
-      </nav>
+      <div className="flex-grow space-y-2">
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-4">NAVEGAÇÃO</p> {/* Added NAVEGAÇÃO description */}
+        <nav className="space-y-2">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.path;
+            return (
+              <Link key={item.name} to={item.path}>
+                <Button
+                  variant="ghost"
+                  className={`w-full justify-start text-lg py-6 px-4 rounded-lg transition-colors duration-200 ${
+                    isActive
+                      ? 'bg-myuze-purple text-myuze-white hover:bg-myuze-purple/90'
+                      : 'text-gray-300 hover:bg-myuze-gray-translucent hover:text-myuze-white'
+                  }`}
+                >
+                  <Icon className="mr-4 h-6 w-6" />
+                  {item.name}
+                </Button>
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
       <div className="mt-auto pt-4 border-t border-gray-700">
         {currentUser && (
           <div className="text-sm text-gray-400 mb-2 text-center">
