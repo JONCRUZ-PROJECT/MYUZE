@@ -208,7 +208,7 @@ const EditPlaylistDialog = ({ children, playlist }: EditPlaylistDialogProps) => 
             </div>
             <div>
               <Label htmlFor="cover-upload" className="text-myuze-white">
-                Capa da Playlist (500x500px)
+                Capa da Playlist (Recomendado: 500x500px)
               </Label>
               <Input
                 id="cover-upload"
@@ -218,7 +218,7 @@ const EditPlaylistDialog = ({ children, playlist }: EditPlaylistDialogProps) => 
                 className="bg-myuze-black/50 border-myuze-purple text-myuze-white file:text-myuze-white file:bg-myuze-purple hover:file:bg-myuze-purple/80 file:border-none"
               />
               {coverPreviewUrl && (
-                <img src={coverPreviewUrl} alt="Prévia da Capa" className="w-24 h-24 object-cover rounded-md mt-2" />
+                <img src={coverPreviewUrl} alt="Prévia da Capa" className="w-32 h-32 object-cover rounded-md mt-2" />
               )}
             </div>
           </div>
