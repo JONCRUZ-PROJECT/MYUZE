@@ -80,7 +80,7 @@ const ClientBoards = () => {
               <CardContent className="p-0 mt-4">
                 <div className="flex items-center text-gray-300">
                   <ListMusic className="h-4 w-4 mr-2" />
-                  <span className="font-medium">Playlist:</span> {getPlaylistName(board.playlistId)}
+                  <span className="font-medium">Tocando agora:</span> {getPlaylistName(board.playlistId)}
                 </div>
                 {/* Adicionar mais detalhes do quadro aqui, se necessário */}
               </CardContent>
