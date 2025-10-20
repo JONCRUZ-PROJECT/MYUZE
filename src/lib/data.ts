@@ -61,6 +61,14 @@ export interface PlaybackLog {
   type: 'song' | 'ad';
 }
 
+export interface Board {
+  id: string;
+  clientId: string; // O cliente ao qual este quadro pertence
+  name: string;
+  location: string; // Ex: "Loja 1 - Entrada", "Praça de Alimentação"
+  playlistId: string; // A playlist atribuída a este quadro
+}
+
 // --- Mock Data ---
 
 const mockAdminUser: User = { id: uuidv4(), email: 'admin@example.com', passwordHash: 'admin123', role: 'admin' };
@@ -108,7 +116,7 @@ const mockSongs: Song[] = [
 const mockPlaylists: Playlist[] = [
   {
     id: uuidv4(),
-    userId: mockAdminUser.id,
+    userId: mockAdminUser.id, // Admin user owns this playlist
     name: 'Morning Vibes',
     description: 'Músicas calmas para começar o dia.',
     style: 'lo-fi',
@@ -118,6 +126,19 @@ const mockPlaylists: Playlist[] = [
     scheduleText: 'Manhã (09:00 - 12:00)',
     adIntervalMinutes: 30,
     songs: [mockSongs[0], mockSongs[1], mockSongs[5], mockSongs[0]],
+  },
+  {
+    id: uuidv4(),
+    userId: mockClientUser1.id, // Client 1 owns this playlist
+    name: 'Café Relax',
+    description: 'Playlist para o ambiente do Café Central.',
+    style: 'jazz',
+    mood: 'relaxed',
+    bpm: 90,
+    schedule: { days: [1, 2, 3, 4, 5, 6, 0], startTime: '08:00', endTime: '22:00' },
+    scheduleText: 'Horário Comercial',
+    adIntervalMinutes: 15,
+    songs: [mockSongs[1], mockSongs[4], mockSongs[6], mockSongs[1]],
   },
   {
     id: uuidv4(),
@@ -147,11 +168,30 @@ const mockPlaylists: Playlist[] = [
   },
 ];
 
+const mockBoards: Board[] = [
+  {
+    id: uuidv4(),
+    clientId: mockClients[0].id, // Café Central
+    name: 'Tela Principal - Café',
+    location: 'Balcão Principal',
+    playlistId: mockPlaylists[1].id, // Café Relax
+  },
+  {
+    id: uuidv4(),
+    clientId: mockClients[0].id, // Café Central
+    name: 'Tela Secundária - Lounge',
+    location: 'Área de Lounge',
+    playlistId: mockPlaylists[1].id, // Café Relax
+  },
+];
+
+
 export const initialMyuzeState = {
   users: [mockAdminUser, mockUser, mockClientUser1, mockClientUser2], // Incluir usuários clientes
   clients: mockClients,
   playlists: mockPlaylists,
   songs: mockSongs, // All available songs, including ads
   playbackLogs: [] as PlaybackLog[],
+  boards: mockBoards, // Adicionado
   currentUser: null as User | null,
 };

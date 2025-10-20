@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { initialMyuzeState, User, Playlist, Song, PlaybackLog, Client } from '@/lib/data';
+import { initialMyuzeState, User, Playlist, Song, PlaybackLog, Client, Board } from '@/lib/data';
 import { saveUserToLocalStorage, getUserFromLocalStorage, removeUserFromLocalStorage } from '@/lib/auth';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
@@ -11,6 +11,7 @@ interface MyuzeContextType {
   playlists: Playlist[];
   songs: Song[];
   playbackLogs: PlaybackLog[];
+  boards: Board[]; // Adicionado
   currentUser: User | null;
   login: (email: string, passwordHash: string) => boolean;
   register: (email: string, passwordHash: string) => boolean;
@@ -18,8 +19,8 @@ interface MyuzeContextType {
   addPlaylist: (playlist: Omit<Playlist, 'id' | 'userId' | 'songs'>, selectedSongIds: string[]) => void;
   updatePlaylist: (id: string, updatedPlaylist: Omit<Playlist, 'id' | 'userId' | 'songs'>, selectedSongIds: string[]) => void;
   deletePlaylist: (id: string) => void;
-  addClient: (clientData: Omit<Client, 'id' | 'userId' | 'clientUserId'>) => void; // Removido clientLoginEmail e password
-  updateClient: (id: string, updatedClientData: Partial<Client>) => void; // Removido clientLoginEmail e password
+  addClient: (clientData: Omit<Client, 'id' | 'userId' | 'clientUserId'>) => void;
+  updateClient: (id: string, updatedClientData: Partial<Client>, clientLoginEmail?: string, clientLoginPassword?: string) => void; // Adicionado clientLoginEmail e password
   deleteClient: (id: string) => void;
   getClientById: (id: string) => Client | undefined;
   getPlaylistById: (id: string) => Playlist | undefined;
@@ -27,16 +28,21 @@ interface MyuzeContextType {
   addPlaybackLog: (log: Omit<PlaybackLog, 'id'>) => void;
   addMediaItem: (mediaItem: Omit<Song, 'id' | 'fileUrl'>, file: File) => void;
   getClientUserByClientId: (clientId: string) => User | undefined;
+  addBoard: (boardData: Omit<Board, 'id' | 'clientId'>) => void; // Adicionado
+  getBoardById: (id: string) => Board | undefined; // Adicionado
+  updateBoard: (id: string, updatedBoardData: Partial<Board>) => void; // Adicionado
+  deleteBoard: (id: string) => void; // Adicionado
 }
 
 const MyuzeContext = createContext<MyuzeContextType | undefined>(undefined);
 
-export const MyuzeProvider = ({ children }: { ReactNode }) => {
+export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
   const [users, setUsers] = useState<User[]>(initialMyuzeState.users);
   const [clients, setClients] = useState<Client[]>(initialMyuzeState.clients);
   const [playlists, setPlaylists] = useState<Playlist[]>(initialMyuzeState.playlists);
   const [songs, setSongs] = useState<Song[]>(initialMyuzeState.songs);
   const [playbackLogs, setPlaybackLogs] = useState<PlaybackLog[]>(initialMyuzeState.playbackLogs);
+  const [boards, setBoards] = useState<Board[]>(initialMyuzeState.boards); // Adicionado
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -149,10 +155,20 @@ export const MyuzeProvider = ({ children }: { ReactNode }) => {
     toast.info(`Credenciais do cliente: E-mail: ${generatedClientLoginEmail}, Senha: ${generatedClientLoginPassword}`, { duration: 10000 });
   };
 
-  const updateClient = (id: string, updatedClientData: Partial<Client>) => {
+  const updateClient = (id: string, updatedClientData: Partial<Client>, clientLoginEmail?: string, clientLoginPassword?: string) => {
     setClients(prevClients =>
       prevClients.map(c => {
         if (c.id === id) {
+          // If clientLoginEmail or clientLoginPassword are provided, update the associated user
+          if (c.clientUserId && (clientLoginEmail || clientLoginPassword)) {
+            setUsers(prevUsers =>
+              prevUsers.map(u =>
+                u.id === c.clientUserId
+                  ? { ...u, email: clientLoginEmail || u.email, passwordHash: clientLoginPassword || u.passwordHash }
+                  : u
+              )
+            );
+          }
           return { ...c, ...updatedClientData };
         }
         return c;
@@ -196,6 +212,40 @@ export const MyuzeProvider = ({ children }: { ReactNode }) => {
     toast.success(`${newMediaItem.isAd ? 'Locução' : 'Música'} "${newMediaItem.title}" adicionada à biblioteca!`);
   };
 
+  // Funções para Boards
+  const addBoard = (boardData: Omit<Board, 'id' | 'clientId'>) => {
+    if (!currentUser || currentUser.role !== 'client' || !currentUser.clientId) {
+      toast.error('Você precisa ser um cliente logado para adicionar um quadro.');
+      return;
+    }
+    const newBoard: Board = {
+      ...boardData,
+      id: uuidv4(),
+      clientId: currentUser.clientId,
+    };
+    setBoards(prev => [...prev, newBoard]);
+    toast.success(`Quadro "${newBoard.name}" adicionado!`);
+  };
+
+  const getBoardById = (id: string) => boards.find(b => b.id === id);
+
+  const updateBoard = (id: string, updatedBoardData: Partial<Board>) => {
+    setBoards(prev =>
+      prev.map(b =>
+        b.id === id
+          ? { ...b, ...updatedBoardData }
+          : b
+      )
+    );
+    toast.success(`Quadro atualizado!`);
+  };
+
+  const deleteBoard = (id: string) => {
+    setBoards(prev => prev.filter(b => b.id !== id));
+    toast.success('Quadro excluído.');
+  };
+
+
   return (
     <MyuzeContext.Provider
       value={{
@@ -204,6 +254,7 @@ export const MyuzeProvider = ({ children }: { ReactNode }) => {
         playlists,
         songs,
         playbackLogs,
+        boards, // Adicionado
         currentUser,
         login,
         register,
@@ -220,6 +271,10 @@ export const MyuzeProvider = ({ children }: { ReactNode }) => {
         addPlaybackLog,
         addMediaItem,
         getClientUserByClientId,
+        addBoard, // Adicionado
+        getBoardById, // Adicionado
+        updateBoard, // Adicionado
+        deleteBoard, // Adicionado
       }}
     >
       {children}
