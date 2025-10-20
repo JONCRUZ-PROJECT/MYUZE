@@ -21,6 +21,8 @@ export interface Playlist {
   id: string;
   userId: string;
   name: string;
+  description: string; // Adicionado
+  coverImageUrl?: string; // Adicionado, opcional
   style: string; // e.g., 'lo-fi', 'pop', 'electronic', 'jazz', 'bossa'
   mood: string; // e.g., 'calm', 'energetic', 'focused'
   bpm: number; // Beats per minute
@@ -78,6 +80,7 @@ const mockPlaylists: Playlist[] = [
     id: uuidv4(),
     userId: mockUsers[0].id,
     name: 'Morning Vibes',
+    description: 'Músicas calmas para começar o dia.',
     style: 'lo-fi',
     mood: 'calm',
     bpm: 80,
@@ -88,6 +91,7 @@ const mockPlaylists: Playlist[] = [
     id: uuidv4(),
     userId: mockUsers[0].id,
     name: 'Afternoon Boost',
+    description: 'Músicas energéticas para a tarde.',
     style: 'pop',
     mood: 'energetic',
     bpm: 120,
@@ -98,6 +102,7 @@ const mockPlaylists: Playlist[] = [
     id: uuidv4(),
     userId: mockUsers[0].id,
     name: 'Evening Jazz',
+    description: 'Jazz suave para o fim do dia.',
     style: 'jazz',
     mood: 'relaxed',
     bpm: 90,
