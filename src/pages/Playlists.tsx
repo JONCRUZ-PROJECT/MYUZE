@@ -69,7 +69,7 @@ const Playlists = () => {
               <img
                 src={playlist.coverImageUrl || '/public/placeholder.svg'}
                 alt={playlist.name}
-                className="w-full h-40 object-cover rounded-md mb-4"
+                className="w-full h-64 object-cover rounded-md mb-4"
               />
               <h3 className="text-xl font-semibold text-myuze-white mb-2">{playlist.name}</h3>
               <p className="text-gray-300 text-sm mb-3">{playlist.description}</p>
