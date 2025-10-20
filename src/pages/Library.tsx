@@ -8,11 +8,11 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Upload, Music, Mic, Plus, Play, Pause, Trash2, Clock } from 'lucide-react'; // Updated imports for Play and Clock
+import { Upload, Music, Mic, Plus, Play, Pause, Trash2, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 import { useMyuze } from '@/context/MyuzeContext';
 import { Song } from '@/lib/data';
-import { Badge } from '@/components/ui/badge'; // New import for Badge
+import { Badge } from '@/components/ui/badge';
 
 const Library = () => {
   const { songs, addMediaItem } = useMyuze();
@@ -282,21 +282,21 @@ const Library = () => {
                   {musicTracks.map(song => (
                     <div key={song.id} className="flex items-center justify-between bg-myuze-black/50 p-3 rounded-md border border-myuze-purple/30">
                       {/* Left section: Icon + Title/Album */}
-                      <div className="flex items-center flex-grow min-w-0"> {/* min-w-0 to allow shrinking */}
+                      <div className="flex items-center flex-grow min-w-0">
                         <div className="h-10 w-10 rounded-md bg-gray-800 flex items-center justify-center mr-4 flex-shrink-0">
                           <Music className="h-6 w-6 text-gray-400" />
                         </div>
-                        <div className="flex flex-col overflow-hidden"> {/* overflow-hidden to truncate long titles */}
+                        <div className="flex flex-col overflow-hidden">
                           <p className="font-medium text-myuze-white truncate">{song.title}</p>
-                          <p className="text-sm text-gray-400 truncate">Álbum Desconhecido</p> {/* Hardcoded as per image */}
+                          <p className="text-sm text-gray-400 truncate">Álbum Desconhecido</p>
                         </div>
                       </div>
 
                       {/* Middle section: Artist, Genre, Duration */}
                       <div className="flex items-center gap-x-6 ml-auto mr-4 flex-shrink-0">
-                        <p className="text-sm text-gray-400 hidden md:block">{song.artist}</p> {/* Artist name, hidden on small screens */}
+                        <p className="text-sm text-gray-400 hidden md:block">{song.artist}</p>
                         {song.genre && (
-                          <Badge variant="outline" className="border-myuze-purple text-myuze-purple bg-myuze-purple/20 hidden sm:flex"> {/* Hidden on small screens */}
+                          <Badge variant="outline" className="border-myuze-purple text-myuze-purple bg-myuze-purple/20 hidden sm:flex">
                             {song.genre}
                           </Badge>
                         )}
@@ -413,16 +413,32 @@ const Library = () => {
                 <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
                   {voiceovers.map(vo => (
                     <div key={vo.id} className="flex items-center justify-between bg-myuze-black/50 p-3 rounded-md border border-myuze-purple/30">
-                      <div className="flex items-center flex-grow">
-                        <Mic className="h-10 w-10 p-2 rounded-md bg-myuze-purple/20 text-myuze-purple mr-4" />
-                        <div className="flex flex-col">
-                          <p className="font-medium text-myuze-white">{vo.title}</p>
-                          <p className="text-sm text-gray-400">Tipo: {vo.adType}</p>
-                          <p className="text-xs text-gray-500">Duração: {formatDuration(vo.duration)}</p>
-                          {vo.adDescription && <p className="text-xs text-gray-500 italic">{vo.adDescription}</p>}
+                      {/* Left section: Icon + Title/Description */}
+                      <div className="flex items-center flex-grow min-w-0">
+                        <div className="h-10 w-10 rounded-md bg-gray-800 flex items-center justify-center mr-4 flex-shrink-0">
+                          <Mic className="h-6 w-6 text-gray-400" />
+                        </div>
+                        <div className="flex flex-col overflow-hidden">
+                          <p className="font-medium text-myuze-white truncate">{vo.title}</p>
+                          {vo.adDescription && <p className="text-sm text-gray-400 truncate">{vo.adDescription}</p>}
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
+
+                      {/* Middle section: Type, Duration */}
+                      <div className="flex items-center gap-x-6 ml-auto mr-4 flex-shrink-0">
+                        {vo.adType && (
+                          <Badge variant="outline" className="border-myuze-purple text-myuze-purple bg-myuze-purple/20 hidden sm:flex">
+                            {vo.adType}
+                          </Badge>
+                        )}
+                        <div className="flex items-center text-sm text-gray-400">
+                          <Clock className="h-4 w-4 mr-1" />
+                          <span>{formatDuration(vo.duration)}</span>
+                        </div>
+                      </div>
+
+                      {/* Right section: Actions */}
+                      <div className="flex items-center space-x-2 flex-shrink-0">
                         <Button variant="ghost" size="icon" onClick={() => handlePlayPause(vo)} className="text-myuze-purple hover:text-myuze-purple/80">
                           {playingSongId === vo.id ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
                         </Button>
