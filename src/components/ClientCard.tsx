@@ -10,11 +10,12 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { User, Mail, Phone, MoreVertical, Edit, Trash2, Building, Copy } from 'lucide-react';
+import { User, Mail, Phone, MoreVertical, Edit, Trash2, Building, Copy, LayoutDashboard } from 'lucide-react'; // Adicionado LayoutDashboard
 import { useMyuze } from '@/context/MyuzeContext';
 import { Client } from '@/lib/data';
 import { toast } from 'sonner';
 import EditClientDialog from './EditClientDialog';
+import { Link } from 'react-router-dom'; // Importar Link
 
 interface ClientCardProps {
   client: Client;
@@ -22,7 +23,6 @@ interface ClientCardProps {
 
 const ClientCard = ({ client }: ClientCardProps) => {
   const { deleteClient, getClientUserByClientId } = useMyuze();
-  // const clientUser = getClientUserByClientId(client.id); // Não é mais necessário aqui
 
   const handleDelete = () => {
     if (window.confirm(`Tem certeza que deseja excluir o cliente "${client.name}"?`)) {
@@ -30,18 +30,6 @@ const ClientCard = ({ client }: ClientCardProps) => {
       toast.success(`Cliente "${client.name}" foi excluído.`);
     }
   };
-
-  // A função handleCopyCredentials não é mais necessária aqui, pois o botão foi removido.
-  // const handleCopyCredentials = () => {
-  //   if (clientUser) {
-  //     const credentials = `E-mail: ${clientUser.email}\nSenha: ${clientUser.passwordHash}`;
-  //     navigator.clipboard.writeText(credentials)
-  //       .then(() => toast.success('Credenciais copiadas para a área de transferência!'))
-  //       .catch(() => toast.error('Falha ao copiar credenciais.'));
-  //   } else {
-  //     toast.error('Credenciais do cliente não encontradas.');
-  //   }
-  // };
 
   return (
     <Card className="bg-myuze-gray-translucent text-myuze-white border-none shadow-xl backdrop-blur-sm p-6">
@@ -68,7 +56,12 @@ const ClientCard = ({ client }: ClientCardProps) => {
             )}
           </div>
         </div>
-        <div className="flex items-center space-x-2"> {/* Container for action buttons */}
+        <div className="flex items-center space-x-2">
+          <Link to={`/admin/client-dashboard/${client.id}`}>
+            <Button variant="ghost" size="icon" className="text-myuze-purple hover:text-myuze-purple/80">
+              <LayoutDashboard className="h-5 w-5" />
+            </Button>
+          </Link>
           <EditClientDialog client={client}>
             <Button variant="ghost" size="icon" className="text-gray-400 hover:text-myuze-white">
               <Edit className="h-5 w-5" />
@@ -79,7 +72,6 @@ const ClientCard = ({ client }: ClientCardProps) => {
           </Button>
         </div>
       </CardHeader>
-      {/* A seção de credenciais de login foi removida daqui */}
       <CardContent className="p-0 mt-4">
         {/* Conteúdo adicional do card pode ser adicionado aqui, se necessário */}
       </CardContent>

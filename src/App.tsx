@@ -8,7 +8,7 @@ import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import { MyuzeProvider, useMyuze } from "./context/MyuzeContext";
 import DashboardLayout from "./components/DashboardLayout";
-import ClientDashboardLayout from "./components/ClientDashboardLayout"; // Importar o novo layout
+import ClientDashboardLayout from "./components/ClientDashboardLayout";
 import DashboardHome from "./pages/DashboardHome";
 import Playlists from "./pages/Playlists";
 import Player from "./pages/Player";
@@ -16,7 +16,8 @@ import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import Library from "./pages/Library";
 import Clients from "./pages/Clients";
-import ClientDashboard from "./pages/ClientDashboard"; // Importar o novo painel do cliente
+import ClientDashboard from "./pages/ClientDashboard";
+import AdminClientView from "./pages/AdminClientView"; // Importar o novo componente
 import React from "react";
 
 const queryClient = new QueryClient();
@@ -92,7 +93,7 @@ const AppContent = () => {
         <Route
           path="/player/:storeId"
           element={
-            <ProtectedRoute allowedRoles={['admin', 'user', 'client']}> {/* Player pode ser acessado por clientes */}
+            <ProtectedRoute allowedRoles={['admin', 'user', 'client']}>
               <Player />
             </ProtectedRoute>
           }
@@ -117,6 +118,17 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
+        {/* Nova rota para administradores visualizarem o painel de um cliente */}
+        <Route
+          path="/admin/client-dashboard/:clientId"
+          element={
+            <ProtectedRoute allowedRoles={['admin', 'user']}>
+              <DashboardLayout>
+                <AdminClientView />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
 
         {/* Client Protected Routes */}
         <Route
@@ -129,13 +141,11 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
-        {/* Adicione outras rotas específicas do cliente aqui, usando ClientDashboardLayout */}
         <Route
           path="/client-playlists"
           element={
             <ProtectedRoute allowedRoles={['client']}>
               <ClientDashboardLayout>
-                {/* Placeholder for client-specific playlists page */}
                 <div className="text-myuze-white p-8">
                   <h1 className="text-4xl font-bold mb-4">Minhas Playlists (Cliente)</h1>
                   <p className="text-xl text-gray-300">Aqui o cliente verá suas playlists atribuídas.</p>
@@ -149,7 +159,6 @@ const AppContent = () => {
           element={
             <ProtectedRoute allowedRoles={['client']}>
               <ClientDashboardLayout>
-                {/* Placeholder for client-specific reports page */}
                 <div className="text-myuze-white p-8">
                   <h1 className="text-4xl font-bold mb-4">Relatórios (Cliente)</h1>
                   <p className="text-xl text-gray-300">Aqui o cliente verá relatórios de reprodução.</p>
@@ -163,7 +172,6 @@ const AppContent = () => {
           element={
             <ProtectedRoute allowedRoles={['client']}>
               <ClientDashboardLayout>
-                {/* Placeholder for client-specific settings page */}
                 <div className="text-myuze-white p-8">
                   <h1 className="text-4xl font-bold mb-4">Configurações (Cliente)</h1>
                   <p className="text-xl text-gray-300">Aqui o cliente poderá ajustar suas configurações.</p>
