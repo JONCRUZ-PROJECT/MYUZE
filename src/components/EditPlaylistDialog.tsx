@@ -32,7 +32,8 @@ const EditPlaylistDialog = ({ children, playlist }: EditPlaylistDialogProps) => 
   const [mood, setMood] = useState(playlist.mood);
   const [description, setDescription] = useState(playlist.description);
   const [idealSchedule, setIdealSchedule] = useState(playlist.scheduleText || 'any');
-  const [coverImageUrl, setCoverImageUrl] = useState(playlist.coverImageUrl || '');
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | undefined>(playlist.coverImageUrl);
   const [selectedMusicIds, setSelectedMusicIds] = useState<string[]>(playlist.songs.filter(s => !s.isAd).map(s => s.id));
   const [selectedVoiceoverIds, setSelectedVoiceoverIds] = useState<string[]>(playlist.songs.filter(s => s.isAd).map(s => s.id));
   const [adIntervalMinutes, setAdIntervalMinutes] = useState<number>(playlist.adIntervalMinutes || 15);
@@ -47,12 +48,25 @@ const EditPlaylistDialog = ({ children, playlist }: EditPlaylistDialogProps) => 
       setMood(playlist.mood);
       setDescription(playlist.description);
       setIdealSchedule(playlist.scheduleText || 'any');
-      setCoverImageUrl(playlist.coverImageUrl || '');
+      setCoverFile(null); // Clear file input on open
+      setCoverPreviewUrl(playlist.coverImageUrl);
       setSelectedMusicIds(playlist.songs.filter(s => !s.isAd).map(s => s.id));
       setSelectedVoiceoverIds(playlist.songs.filter(s => s.isAd).map(s => s.id));
       setAdIntervalMinutes(playlist.adIntervalMinutes || 15);
     }
   }, [isOpen, playlist]);
+
+  const handleCoverFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      setCoverFile(file);
+      setCoverPreviewUrl(URL.createObjectURL(file));
+      toast.info(`Capa "${file.name}" selecionada.`);
+    } else {
+      setCoverFile(null);
+      setCoverPreviewUrl(playlist.coverImageUrl); // Revert to original if no new file
+    }
+  };
 
   const handleMusicSelection = (songId: string, isChecked: boolean) => {
     setSelectedMusicIds(prev =>
@@ -66,27 +80,58 @@ const EditPlaylistDialog = ({ children, playlist }: EditPlaylistDialogProps) => 
     );
   };
 
+  const generateInterleavedPlaylistSongs = (
+    musicIds: string[],
+    voiceoverIds: string[],
+    intervalMinutes: number
+  ): Song[] => {
+    const musicTracks = songs.filter(s => musicIds.includes(s.id));
+    const voiceoverTracks = songs.filter(s => voiceoverIds.includes(s.id));
+
+    if (musicTracks.length === 0) return voiceoverTracks;
+    if (voiceoverTracks.length === 0) return musicTracks;
+
+    const interleavedSongs: Song[] = [];
+    let currentMusicDuration = 0;
+    let voiceoverIndex = 0;
+    const intervalSeconds = intervalMinutes * 60;
+
+    musicTracks.forEach(music => {
+      interleavedSongs.push(music);
+      currentMusicDuration += music.duration;
+
+      if (currentMusicDuration >= intervalSeconds) {
+        // Insert a voiceover
+        interleavedSongs.push(voiceoverTracks[voiceoverIndex]);
+        voiceoverIndex = (voiceoverIndex + 1) % voiceoverTracks.length;
+        currentMusicDuration = 0; // Reset duration after inserting an ad
+      }
+    });
+
+    return interleavedSongs;
+  };
+
   const handleSubmit = () => {
     if (!name || !mood || !description || (selectedMusicIds.length === 0 && selectedVoiceoverIds.length === 0)) {
       toast.error('Por favor, preencha todos os campos obrigatórios e selecione pelo menos uma música ou locução.');
       return;
     }
 
-    const combinedSelectedSongIds = [...selectedMusicIds, ...selectedVoiceoverIds];
+    const finalSongs = generateInterleavedPlaylistSongs(selectedMusicIds, selectedVoiceoverIds, adIntervalMinutes);
 
     const updatedPlaylistData: Omit<Playlist, 'id' | 'userId' | 'songs'> = {
       name,
       description,
-      coverImageUrl: coverImageUrl || undefined,
+      coverImageUrl: coverPreviewUrl, // Use the generated preview URL or existing one
       mood,
-      style: playlist.style, // Keep existing style
-      bpm: playlist.bpm, // Keep existing BPM
-      schedule: playlist.schedule, // Keep existing schedule
+      style: playlist.style,
+      bpm: playlist.bpm,
+      schedule: playlist.schedule,
       scheduleText: idealSchedule === 'any' ? 'Qualquer horário' : idealSchedule,
       adIntervalMinutes: adIntervalMinutes,
     };
 
-    updatePlaylist(playlist.id, updatedPlaylistData, combinedSelectedSongIds);
+    updatePlaylist(playlist.id, updatedPlaylistData, finalSongs.map(s => s.id));
     setIsOpen(false);
   };
 
@@ -162,17 +207,19 @@ const EditPlaylistDialog = ({ children, playlist }: EditPlaylistDialogProps) => 
               </Select>
             </div>
             <div>
-              <Label htmlFor="cover-url" className="text-myuze-white">
-                URL da Capa
+              <Label htmlFor="cover-upload" className="text-myuze-white">
+                Capa da Playlist (500x500px)
               </Label>
               <Input
-                id="cover-url"
-                type="url"
-                value={coverImageUrl}
-                onChange={(e) => setCoverImageUrl(e.target.value)}
-                placeholder="https://..."
-                className="bg-myuze-black/50 border-myuze-purple text-myuze-white placeholder:text-gray-400"
+                id="cover-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleCoverFileChange}
+                className="bg-myuze-black/50 border-myuze-purple text-myuze-white file:text-myuze-white file:bg-myuze-purple hover:file:bg-myuze-purple/80 file:border-none"
               />
+              {coverPreviewUrl && (
+                <img src={coverPreviewUrl} alt="Prévia da Capa" className="w-24 h-24 object-cover rounded-md mt-2" />
+              )}
             </div>
           </div>
 

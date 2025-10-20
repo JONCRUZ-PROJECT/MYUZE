@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Music, Mic, Clock, X } from 'lucide-react'; // Added X icon for cancel button
+import { Music, Mic, Clock, X } from 'lucide-react';
 import { useMyuze } from '@/context/MyuzeContext';
 import { Playlist, Song } from '@/lib/data';
 import { toast } from 'sonner';
@@ -30,14 +30,27 @@ const CreatePlaylistDialog = ({ children }: CreatePlaylistDialogProps) => {
   const [name, setName] = useState('');
   const [mood, setMood] = useState('');
   const [description, setDescription] = useState('');
-  const [idealSchedule, setIdealSchedule] = useState('any'); // Default to 'Qualquer horário'
-  const [coverImageUrl, setCoverImageUrl] = useState(''); // Changed to URL input
+  const [idealSchedule, setIdealSchedule] = useState('any');
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | undefined>(undefined);
   const [selectedMusicIds, setSelectedMusicIds] = useState<string[]>([]);
   const [selectedVoiceoverIds, setSelectedVoiceoverIds] = useState<string[]>([]);
-  const [adIntervalMinutes, setAdIntervalMinutes] = useState<number>(15); // Default as per image
+  const [adIntervalMinutes, setAdIntervalMinutes] = useState<number>(15);
 
   const availableMusic = songs.filter(s => !s.isAd);
   const availableVoiceovers = songs.filter(s => s.isAd);
+
+  const handleCoverFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      setCoverFile(file);
+      setCoverPreviewUrl(URL.createObjectURL(file));
+      toast.info(`Capa "${file.name}" selecionada.`);
+    } else {
+      setCoverFile(null);
+      setCoverPreviewUrl(undefined);
+    }
+  };
 
   const handleMusicSelection = (songId: string, isChecked: boolean) => {
     setSelectedMusicIds(prev =>
@@ -51,34 +64,66 @@ const CreatePlaylistDialog = ({ children }: CreatePlaylistDialogProps) => {
     );
   };
 
+  const generateInterleavedPlaylistSongs = (
+    musicIds: string[],
+    voiceoverIds: string[],
+    intervalMinutes: number
+  ): Song[] => {
+    const musicTracks = songs.filter(s => musicIds.includes(s.id));
+    const voiceoverTracks = songs.filter(s => voiceoverIds.includes(s.id));
+
+    if (musicTracks.length === 0) return voiceoverTracks;
+    if (voiceoverTracks.length === 0) return musicTracks;
+
+    const interleavedSongs: Song[] = [];
+    let currentMusicDuration = 0;
+    let voiceoverIndex = 0;
+    const intervalSeconds = intervalMinutes * 60;
+
+    musicTracks.forEach(music => {
+      interleavedSongs.push(music);
+      currentMusicDuration += music.duration;
+
+      if (currentMusicDuration >= intervalSeconds) {
+        // Insert a voiceover
+        interleavedSongs.push(voiceoverTracks[voiceoverIndex]);
+        voiceoverIndex = (voiceoverIndex + 1) % voiceoverTracks.length;
+        currentMusicDuration = 0; // Reset duration after inserting an ad
+      }
+    });
+
+    return interleavedSongs;
+  };
+
   const handleSubmit = () => {
     if (!name || !mood || !description || (selectedMusicIds.length === 0 && selectedVoiceoverIds.length === 0)) {
       toast.error('Por favor, preencha todos os campos obrigatórios e selecione pelo menos uma música ou locução.');
       return;
     }
 
-    const combinedSelectedSongIds = [...selectedMusicIds, ...selectedVoiceoverIds];
+    const finalSongs = generateInterleavedPlaylistSongs(selectedMusicIds, selectedVoiceoverIds, adIntervalMinutes);
 
     const newPlaylistData: Omit<Playlist, 'id' | 'userId' | 'songs'> = {
       name,
       description,
-      coverImageUrl: coverImageUrl || undefined, // Use URL or undefined
+      coverImageUrl: coverPreviewUrl, // Use the generated preview URL
       mood,
-      style: 'custom', // Default style for now
-      bpm: 0, // Default BPM for now
-      schedule: { days: [], startTime: '00:00', endTime: '23:59' }, // Default schedule
-      scheduleText: idealSchedule === 'any' ? 'Qualquer horário' : idealSchedule, // Set schedule text
-      adIntervalMinutes: adIntervalMinutes, // Set ad interval
+      style: 'custom',
+      bpm: 0,
+      schedule: { days: [], startTime: '00:00', endTime: '23:59' },
+      scheduleText: idealSchedule === 'any' ? 'Qualquer horário' : idealSchedule,
+      adIntervalMinutes: adIntervalMinutes,
     };
 
-    addPlaylist(newPlaylistData, combinedSelectedSongIds);
+    addPlaylist(newPlaylistData, finalSongs.map(s => s.id)); // Pass the IDs of the interleaved songs
     setIsOpen(false);
     // Reset form fields
     setName('');
     setMood('');
     setDescription('');
     setIdealSchedule('any');
-    setCoverImageUrl('');
+    setCoverFile(null);
+    setCoverPreviewUrl(undefined);
     setSelectedMusicIds([]);
     setSelectedVoiceoverIds([]);
     setAdIntervalMinutes(15);
@@ -156,17 +201,19 @@ const CreatePlaylistDialog = ({ children }: CreatePlaylistDialogProps) => {
               </Select>
             </div>
             <div>
-              <Label htmlFor="cover-url" className="text-myuze-white">
-                URL da Capa
+              <Label htmlFor="cover-upload" className="text-myuze-white">
+                Capa da Playlist (500x500px)
               </Label>
               <Input
-                id="cover-url"
-                type="url"
-                value={coverImageUrl}
-                onChange={(e) => setCoverImageUrl(e.target.value)}
-                placeholder="https://..."
-                className="bg-myuze-black/50 border-myuze-purple text-myuze-white placeholder:text-gray-400"
+                id="cover-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleCoverFileChange}
+                className="bg-myuze-black/50 border-myuze-purple text-myuze-white file:text-myuze-white file:bg-myuze-purple hover:file:bg-myuze-purple/80 file:border-none"
               />
+              {coverPreviewUrl && (
+                <img src={coverPreviewUrl} alt="Prévia da Capa" className="w-24 h-24 object-cover rounded-md mt-2" />
+              )}
             </div>
           </div>
 
