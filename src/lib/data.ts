@@ -31,6 +31,8 @@ export interface Playlist {
     startTime: string; // HH:mm (e.g., "09:00")
     endTime: string; // HH:mm (e.g., "20:00")
   };
+  scheduleText?: string; // Adicionado para o 'Horário Ideal'
+  adIntervalMinutes?: number; // Adicionado para 'Tocar locução a cada (minutos)'
   songs: Song[];
 }
 
@@ -85,6 +87,8 @@ const mockPlaylists: Playlist[] = [
     mood: 'calm',
     bpm: 80,
     schedule: { days: [1, 2, 3, 4, 5], startTime: '09:00', endTime: '12:00' },
+    scheduleText: 'Manhã (09:00 - 12:00)',
+    adIntervalMinutes: 30,
     songs: [mockSongs[0], mockSongs[1], mockSongs[5], mockSongs[0]],
   },
   {
@@ -96,6 +100,8 @@ const mockPlaylists: Playlist[] = [
     mood: 'energetic',
     bpm: 120,
     schedule: { days: [1, 2, 3, 4, 5], startTime: '12:00', endTime: '17:00' },
+    scheduleText: 'Tarde (12:00 - 17:00)',
+    adIntervalMinutes: 20,
     songs: [mockSongs[2], mockSongs[3], mockSongs[6], mockSongs[2]],
   },
   {
@@ -107,6 +113,8 @@ const mockPlaylists: Playlist[] = [
     mood: 'relaxed',
     bpm: 90,
     schedule: { days: [1, 2, 3, 4, 5], startTime: '17:00', endTime: '20:00' },
+    scheduleText: 'Noite (17:00 - 20:00)',
+    adIntervalMinutes: 15,
     songs: [mockSongs[1], mockSongs[4], mockSongs[5], mockSongs[1]],
   },
 ];

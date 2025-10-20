@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Plus, Music, Mic, Clock } from 'lucide-react';
+import { Music, Mic, Clock, X } from 'lucide-react'; // Added X icon for cancel button
 import { useMyuze } from '@/context/MyuzeContext';
 import { Playlist, Song } from '@/lib/data';
 import { toast } from 'sonner';
@@ -30,165 +30,219 @@ const CreatePlaylistDialog = ({ children }: CreatePlaylistDialogProps) => {
   const [name, setName] = useState('');
   const [mood, setMood] = useState('');
   const [description, setDescription] = useState('');
-  const [coverFile, setCoverFile] = useState<File | null>(null);
-  const [selectedSongIds, setSelectedSongIds] = useState<string[]>([]);
+  const [idealSchedule, setIdealSchedule] = useState('any'); // Default to 'Qualquer horário'
+  const [coverImageUrl, setCoverImageUrl] = useState(''); // Changed to URL input
+  const [selectedMusicIds, setSelectedMusicIds] = useState<string[]>([]);
+  const [selectedVoiceoverIds, setSelectedVoiceoverIds] = useState<string[]>([]);
+  const [adIntervalMinutes, setAdIntervalMinutes] = useState<number>(15); // Default as per image
 
   const availableMusic = songs.filter(s => !s.isAd);
   const availableVoiceovers = songs.filter(s => s.isAd);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setCoverFile(e.target.files[0]);
-      toast.info(`Capa "${e.target.files[0].name}" selecionada.`);
-    }
+  const handleMusicSelection = (songId: string, isChecked: boolean) => {
+    setSelectedMusicIds(prev =>
+      isChecked ? [...prev, songId] : prev.filter(id => id !== songId)
+    );
   };
 
-  const handleSongSelection = (songId: string, isChecked: boolean) => {
-    setSelectedSongIds(prev =>
+  const handleVoiceoverSelection = (songId: string, isChecked: boolean) => {
+    setSelectedVoiceoverIds(prev =>
       isChecked ? [...prev, songId] : prev.filter(id => id !== songId)
     );
   };
 
   const handleSubmit = () => {
-    if (!name || !mood || !description || selectedSongIds.length === 0) {
-      toast.error('Por favor, preencha todos os campos obrigatórios e selecione pelo menos uma música/locução.');
+    if (!name || !mood || !description || (selectedMusicIds.length === 0 && selectedVoiceoverIds.length === 0)) {
+      toast.error('Por favor, preencha todos os campos obrigatórios e selecione pelo menos uma música ou locução.');
       return;
     }
 
-    // In a real application, you would upload the coverFile to a storage service
-    // and get a URL back. For this example, we'll just use a placeholder URL
-    // or leave it undefined if no file was selected.
-    const coverImageUrl = coverFile ? URL.createObjectURL(coverFile) : undefined;
+    const combinedSelectedSongIds = [...selectedMusicIds, ...selectedVoiceoverIds];
 
     const newPlaylistData: Omit<Playlist, 'id' | 'userId' | 'songs'> = {
       name,
       description,
-      coverImageUrl,
+      coverImageUrl: coverImageUrl || undefined, // Use URL or undefined
       mood,
-      style: 'custom', // Default style for now, could be derived from songs or user input
+      style: 'custom', // Default style for now
       bpm: 0, // Default BPM for now
       schedule: { days: [], startTime: '00:00', endTime: '23:59' }, // Default schedule
+      scheduleText: idealSchedule === 'any' ? 'Qualquer horário' : idealSchedule, // Set schedule text
+      adIntervalMinutes: adIntervalMinutes, // Set ad interval
     };
 
-    addPlaylist(newPlaylistData, selectedSongIds);
+    addPlaylist(newPlaylistData, combinedSelectedSongIds);
     setIsOpen(false);
     // Reset form fields
     setName('');
     setMood('');
     setDescription('');
-    setCoverFile(null);
-    setSelectedSongIds([]);
+    setIdealSchedule('any');
+    setCoverImageUrl('');
+    setSelectedMusicIds([]);
+    setSelectedVoiceoverIds([]);
+    setAdIntervalMinutes(15);
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] bg-myuze-black text-myuze-white border-myuze-purple">
+      <DialogContent className="sm:max-w-[800px] bg-myuze-black text-myuze-white border-myuze-purple">
         <DialogHeader>
-          <DialogTitle className="text-myuze-white">Criar Nova Playlist</DialogTitle>
+          <DialogTitle className="text-myuze-white">Nova Playlist</DialogTitle>
           <DialogDescription className="text-gray-400">
             Preencha os detalhes para criar uma nova playlist.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right text-myuze-white">
-              Nome
-            </Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="col-span-3 bg-myuze-black/50 border-myuze-purple text-myuze-white placeholder:text-gray-400"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="name" className="text-myuze-white">
+                Nome da Playlist *
+              </Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Ex: Música Ambiente Manhã"
+                className="bg-myuze-black/50 border-myuze-purple text-myuze-white placeholder:text-gray-400"
+              />
+            </div>
+            <div>
+              <Label htmlFor="mood" className="text-myuze-white">
+                Clima *
+              </Label>
+              <Select value={mood} onValueChange={setMood}>
+                <SelectTrigger id="mood" className="bg-myuze-black/50 border-myuze-purple text-myuze-white">
+                  <SelectValue placeholder="Energizante" />
+                </SelectTrigger>
+                <SelectContent className="bg-myuze-black border-myuze-purple text-myuze-white">
+                  <SelectItem value="calm">Calmo</SelectItem>
+                  <SelectItem value="energetic">Energético</SelectItem>
+                  <SelectItem value="focused">Focado</SelectItem>
+                  <SelectItem value="relaxed">Relaxado</SelectItem>
+                  <SelectItem value="happy">Feliz</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="mood" className="text-right text-myuze-white">
-              Mood
-            </Label>
-            <Select value={mood} onValueChange={setMood}>
-              <SelectTrigger id="mood" className="col-span-3 bg-myuze-black/50 border-myuze-purple text-myuze-white">
-                <SelectValue placeholder="Selecione o mood" />
-              </SelectTrigger>
-              <SelectContent className="bg-myuze-black border-myuze-purple text-myuze-white">
-                <SelectItem value="calm">Calmo</SelectItem>
-                <SelectItem value="energetic">Energético</SelectItem>
-                <SelectItem value="focused">Focado</SelectItem>
-                <SelectItem value="relaxed">Relaxado</SelectItem>
-                <SelectItem value="happy">Feliz</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="description" className="text-right text-myuze-white">
+
+          <div>
+            <Label htmlFor="description" className="text-myuze-white">
               Descrição
             </Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Uma breve descrição da playlist..."
-              className="col-span-3 bg-myuze-black/50 border-myuze-purple text-myuze-white placeholder:text-gray-400"
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="cover" className="text-right text-myuze-white">
-              Capa (500x500px)
-            </Label>
-            <Input
-              id="cover"
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="col-span-3 bg-myuze-black/50 border-myuze-purple text-myuze-white file:text-myuze-white file:bg-myuze-purple hover:file:bg-myuze-purple/80 file:border-none"
+              placeholder="Descreva o objetivo desta playlist..."
+              className="bg-myuze-black/50 border-myuze-purple text-myuze-white placeholder:text-gray-400"
             />
           </div>
 
-          <div className="col-span-4">
-            <Label className="text-myuze-white mb-2 block">Adicionar Músicas e Locuções</Label>
-            <ScrollArea className="h-[200px] w-full rounded-md border border-myuze-purple/50 p-4 bg-myuze-black/50">
-              <div className="space-y-2">
-                {availableMusic.length === 0 && availableVoiceovers.length === 0 ? (
-                  <p className="text-gray-400">Nenhum item de mídia disponível na biblioteca.</p>
-                ) : (
-                  <>
-                    {availableMusic.map(song => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="ideal-schedule" className="text-myuze-white">
+                Horário Ideal
+              </Label>
+              <Select value={idealSchedule} onValueChange={setIdealSchedule}>
+                <SelectTrigger id="ideal-schedule" className="bg-myuze-black/50 border-myuze-purple text-myuze-white">
+                  <SelectValue placeholder="Qualquer horário" />
+                </SelectTrigger>
+                <SelectContent className="bg-myuze-black border-myuze-purple text-myuze-white">
+                  <SelectItem value="any">Qualquer horário</SelectItem>
+                  {/* Add more schedule options if needed */}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="cover-url" className="text-myuze-white">
+                URL da Capa
+              </Label>
+              <Input
+                id="cover-url"
+                type="url"
+                value={coverImageUrl}
+                onChange={(e) => setCoverImageUrl(e.target.value)}
+                placeholder="https://..."
+                className="bg-myuze-black/50 border-myuze-purple text-myuze-white placeholder:text-gray-400"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div>
+              <Label className="text-myuze-white mb-2 block">Músicas na Playlist ({selectedMusicIds.length} selecionadas)</Label>
+              <ScrollArea className="h-[200px] w-full rounded-md border border-myuze-purple/50 p-4 bg-myuze-black/50">
+                <div className="space-y-2">
+                  {availableMusic.length === 0 ? (
+                    <p className="text-gray-400">Nenhuma música disponível na biblioteca.</p>
+                  ) : (
+                    availableMusic.map(song => (
                       <div key={song.id} className="flex items-center space-x-2 text-myuze-white">
                         <Checkbox
-                          id={`song-${song.id}`}
-                          checked={selectedSongIds.includes(song.id)}
-                          onCheckedChange={(checked) => handleSongSelection(song.id, checked as boolean)}
+                          id={`music-${song.id}`}
+                          checked={selectedMusicIds.includes(song.id)}
+                          onCheckedChange={(checked) => handleMusicSelection(song.id, checked as boolean)}
                           className="border-myuze-purple data-[state=checked]:bg-myuze-purple data-[state=checked]:text-myuze-white"
                         />
-                        <Label htmlFor={`song-${song.id}`} className="flex items-center cursor-pointer">
-                          <Music className="h-4 w-4 mr-2 text-gray-400" />
-                          {song.title} - {song.artist} <span className="text-gray-500 text-xs ml-1">({formatDuration(song.duration)})</span>
+                        <Label htmlFor={`music-${song.id}`} className="flex items-center cursor-pointer">
+                          {song.title} - {song.artist}
                         </Label>
                       </div>
-                    ))}
-                    {availableVoiceovers.map(vo => (
+                    ))
+                  )}
+                </div>
+              </ScrollArea>
+            </div>
+
+            <div>
+              <Label className="text-myuze-white mb-2 block">Locuções na Playlist ({selectedVoiceoverIds.length} selecionadas)</Label>
+              <ScrollArea className="h-[200px] w-full rounded-md border border-myuze-purple/50 p-4 bg-myuze-black/50">
+                <div className="space-y-2">
+                  {availableVoiceovers.length === 0 ? (
+                    <p className="text-gray-400">Nenhuma locução disponível na biblioteca.</p>
+                  ) : (
+                    availableVoiceovers.map(vo => (
                       <div key={vo.id} className="flex items-center space-x-2 text-myuze-white">
                         <Checkbox
-                          id={`vo-${vo.id}`}
-                          checked={selectedSongIds.includes(vo.id)}
-                          onCheckedChange={(checked) => handleSongSelection(vo.id, checked as boolean)}
+                          id={`voiceover-${vo.id}`}
+                          checked={selectedVoiceoverIds.includes(vo.id)}
+                          onCheckedChange={(checked) => handleVoiceoverSelection(vo.id, checked as boolean)}
                           className="border-myuze-purple data-[state=checked]:bg-myuze-purple data-[state=checked]:text-myuze-white"
                         />
-                        <Label htmlFor={`vo-${vo.id}`} className="flex items-center cursor-pointer">
-                          <Mic className="h-4 w-4 mr-2 text-gray-400" />
-                          {vo.title} <span className="text-gray-500 text-xs ml-1">({vo.adType}) ({formatDuration(vo.duration)})</span>
+                        <Label htmlFor={`voiceover-${vo.id}`} className="flex items-center cursor-pointer">
+                          {vo.title}
                         </Label>
                       </div>
-                    ))}
-                  </>
-                )}
-              </div>
-            </ScrollArea>
+                    ))
+                  )}
+                </div>
+              </ScrollArea>
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <Label htmlFor="ad-interval" className="text-myuze-white">
+              Tocar locução a cada (minutos)
+            </Label>
+            <Input
+              id="ad-interval"
+              type="number"
+              value={adIntervalMinutes}
+              onChange={(e) => setAdIntervalMinutes(Number(e.target.value))}
+              min="1"
+              placeholder="15"
+              className="bg-myuze-black/50 border-myuze-purple text-myuze-white placeholder:text-gray-400"
+            />
           </div>
         </div>
-        <DialogFooter>
+        <DialogFooter className="flex justify-end gap-2">
+          <Button variant="ghost" onClick={() => setIsOpen(false)} className="text-gray-400 hover:bg-myuze-gray-translucent hover:text-myuze-white">
+            <X className="mr-2 h-4 w-4" /> Cancelar
+          </Button>
           <Button type="submit" onClick={handleSubmit} className="bg-myuze-purple hover:bg-myuze-purple/80 text-myuze-white">
-            Criar Playlist
+            Salvar
           </Button>
         </DialogFooter>
       </DialogContent>
