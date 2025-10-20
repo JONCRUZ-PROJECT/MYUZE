@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 const Clients = () => {
   const { clients } = useMyuze();
 
-  const totalClients = clients.length;
+  // const totalClients = clients.length; // No longer needed for the summary box
 
   return (
     <div className="text-myuze-white space-y-8">
@@ -25,7 +25,8 @@ const Clients = () => {
       </div>
       <p className="text-lg mb-8">Gerencie seus clientes e suas informações de contato.</p>
 
-      {/* Clients Summary Box */}
+      {/* Clients Summary Box - REMOVED */}
+      {/*
       <Card className="bg-myuze-gray-translucent text-myuze-white border-none shadow-xl backdrop-blur-sm mb-8">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-xl font-semibold text-myuze-white flex items-center">
@@ -38,6 +39,7 @@ const Clients = () => {
           <p className="text-5xl font-bold text-myuze-purple">{totalClients}</p>
         </CardContent>
       </Card>
+      */}
 
       {/* List of Client Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
