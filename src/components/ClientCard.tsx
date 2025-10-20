@@ -14,7 +14,7 @@ import { User, Mail, Phone, MoreVertical, Edit, Trash2, Building } from 'lucide-
 import { useMyuze } from '@/context/MyuzeContext';
 import { Client } from '@/lib/data';
 import { toast } from 'sonner';
-import EditClientDialog from './EditClientDialog'; // Importar o novo componente
+import EditClientDialog from './EditClientDialog';
 
 interface ClientCardProps {
   client: Client;
@@ -55,24 +55,31 @@ const ClientCard = ({ client }: ClientCardProps) => {
             )}
           </div>
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+        <div className="flex items-center space-x-2"> {/* Container for action buttons */}
+          <EditClientDialog client={client}>
             <Button variant="ghost" size="icon" className="text-gray-400 hover:text-myuze-white">
-              <MoreVertical className="h-5 w-5" />
+              <Edit className="h-5 w-5" />
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="bg-myuze-black border-myuze-purple text-myuze-white">
-            <EditClientDialog client={client}> {/* Envolvendo o DropdownMenuItem com o EditClientDialog */}
-              <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer hover:bg-myuze-purple/20">
-                <Edit className="mr-2 h-4 w-4" /> Editar Cliente
+          </EditClientDialog>
+          <Button variant="ghost" size="icon" onClick={handleDelete} className="text-red-400 hover:text-red-300">
+            <Trash2 className="h-5 w-5" />
+          </Button>
+          {/* You can keep the DropdownMenu for other actions if needed, or remove it if redundant */}
+          {/*
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="text-gray-400 hover:text-myuze-white">
+                <MoreVertical className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="bg-myuze-black border-myuze-purple text-myuze-white">
+              <DropdownMenuItem className="cursor-pointer hover:bg-myuze-purple/20">
+                Outra Ação
               </DropdownMenuItem>
-            </EditClientDialog>
-            <DropdownMenuSeparator className="bg-myuze-purple/50" />
-            <DropdownMenuItem onClick={handleDelete} className="text-red-400 cursor-pointer hover:bg-red-400/20 hover:text-red-300">
-              <Trash2 className="mr-2 h-4 w-4" /> Excluir Cliente
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          */}
+        </div>
       </CardHeader>
       <CardContent className="p-0 mt-4">
         {/* Conteúdo adicional do cliente pode ir aqui */}
