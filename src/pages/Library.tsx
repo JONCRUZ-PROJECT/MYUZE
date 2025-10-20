@@ -368,7 +368,10 @@ const Library = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="voiceover-type" className="text-myuze-white mb-2 block">Tipo de Locução</Label>
-                    <Select value={voiceoverType} onValueChange={setVoiceoverType}>
+                    <Select
+                      value={voiceoverType}
+                      onValueChange={(value: 'propaganda' | 'aviso' | 'promocao' | 'institucional' | '') => setVoiceoverType(value)}
+                    >
                       <SelectTrigger id="voiceover-type" className="bg-myuze-black/50 border-myuze-purple text-myuze-white focus:ring-myuze-purple focus:border-myuze-purple">
                         <SelectValue placeholder="Selecione o tipo" />
                       </SelectTrigger>
