@@ -14,6 +14,7 @@ import Player from "./pages/Player";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import Library from "./pages/Library";
+import Clients from "./pages/Clients"; // Added Clients import
 import React from "react";
 
 const queryClient = new QueryClient();
@@ -54,7 +55,16 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
-        {/* The /installations route has been removed */}
+        <Route
+          path="/clients" // Added /clients route
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Clients />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/library"
           element={

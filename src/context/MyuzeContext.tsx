@@ -1,12 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { initialMyuzeState, User, Playlist, Song, PlaybackLog } from '@/lib/data'; // Removed Store import
+import { initialMyuzeState, User, Playlist, Song, PlaybackLog, Client } from '@/lib/data'; // Added Client import
 import { saveUserToLocalStorage, getUserFromLocalStorage, removeUserFromLocalStorage } from '@/lib/auth';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
 
 interface MyuzeContextType {
   users: User[];
-  // stores: Store[]; // Removed stores
+  clients: Client[]; // Added clients
   playlists: Playlist[];
   songs: Song[];
   playbackLogs: PlaybackLog[];
@@ -17,11 +17,11 @@ interface MyuzeContextType {
   addPlaylist: (playlist: Omit<Playlist, 'id' | 'userId' | 'songs'>, selectedSongIds: string[]) => void;
   updatePlaylist: (id: string, updatedPlaylist: Omit<Playlist, 'id' | 'userId' | 'songs'>, selectedSongIds: string[]) => void;
   deletePlaylist: (id: string) => void;
-  // addStore: (store: Omit<Store, 'id' | 'userId' | 'status' | 'currentPlaylistId' | 'lastPlayedSong' | 'playbackStartTime'>) => void; // Removed addStore
-  // updateStore: (id: string, updatedStore: Partial<Store>) => void; // Removed updateStore
-  // deleteStore: (id: string) => void; // Removed deleteStore
+  addClient: (client: Omit<Client, 'id' | 'userId'>) => void; // Added addClient
+  updateClient: (id: string, updatedClient: Partial<Client>) => void; // Added updateClient
+  deleteClient: (id: string) => void; // Added deleteClient
+  getClientById: (id: string) => Client | undefined; // Added getClientById
   getPlaylistById: (id: string) => Playlist | undefined;
-  // getStoreById: (id: string) => Store | undefined; // Removed getStoreById
   getSongsByIds: (ids: string[]) => Song[];
   addPlaybackLog: (log: Omit<PlaybackLog, 'id'>) => void;
   addMediaItem: (mediaItem: Omit<Song, 'id' | 'fileUrl'>, file: File) => void;
@@ -31,7 +31,7 @@ const MyuzeContext = createContext<MyuzeContextType | undefined>(undefined);
 
 export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
   const [users, setUsers] = useState<User[]>(initialMyuzeState.users);
-  // const [stores, setStores] = useState<Store[]>(initialMyuzeState.stores); // Removed stores state
+  const [clients, setClients] = useState<Client[]>(initialMyuzeState.clients); // Added clients state
   const [playlists, setPlaylists] = useState<Playlist[]>(initialMyuzeState.playlists);
   const [songs, setSongs] = useState<Song[]>(initialMyuzeState.songs);
   const [playbackLogs, setPlaybackLogs] = useState<PlaybackLog[]>(initialMyuzeState.playbackLogs);
@@ -110,10 +110,39 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
     toast.success('Playlist deleted.');
   };
 
-  // Removed addStore, updateStore, deleteStore functions
+  const addClient = (clientData: Omit<Client, 'id' | 'userId'>) => {
+    if (!currentUser) {
+      toast.error('Você precisa estar logado para adicionar um cliente.');
+      return;
+    }
+    const newClient: Client = {
+      ...clientData,
+      id: uuidv4(),
+      userId: currentUser.id,
+    };
+    setClients(prev => [...prev, newClient]);
+    toast.success(`Cliente "${newClient.name}" adicionado!`);
+  };
+
+  const updateClient = (id: string, updatedClientData: Partial<Client>) => {
+    setClients(prev =>
+      prev.map(c =>
+        c.id === id
+          ? { ...c, ...updatedClientData }
+          : c
+      )
+    );
+    toast.success(`Cliente atualizado!`);
+  };
+
+  const deleteClient = (id: string) => {
+    setClients(prev => prev.filter(c => c.id !== id));
+    toast.success('Cliente excluído.');
+  };
+
+  const getClientById = (id: string) => clients.find(c => c.id === id); // Added getClientById
 
   const getPlaylistById = (id: string) => playlists.find(p => p.id === id);
-  // Removed getStoreById function
 
   const addPlaybackLog = (log: Omit<PlaybackLog, 'id'>) => {
     const newLog: PlaybackLog = { ...log, id: uuidv4() };
@@ -140,7 +169,7 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
     <MyuzeContext.Provider
       value={{
         users,
-        // stores, // Removed stores from context value
+        clients, // Added clients to context value
         playlists,
         songs,
         playbackLogs,
@@ -151,11 +180,11 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
         addPlaylist,
         updatePlaylist,
         deletePlaylist,
-        // addStore, // Removed addStore from context value
-        // updateStore, // Removed updateStore from context value
-        // deleteStore, // Removed deleteStore from context value
+        addClient, // Added addClient to context value
+        updateClient, // Added updateClient to context value
+        deleteClient, // Added deleteClient to context value
+        getClientById, // Added getClientById to context value
         getPlaylistById,
-        // getStoreById, // Removed getStoreById from context value
         getSongsByIds,
         addPlaybackLog,
         addMediaItem,

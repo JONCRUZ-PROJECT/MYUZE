@@ -7,7 +7,14 @@ export interface User {
   role: 'admin' | 'user';
 }
 
-// Removed Store interface
+export interface Client {
+  id: string;
+  userId: string; // The user who owns this client
+  name: string; // Client company name
+  contactEmail: string;
+  contactPhone?: string;
+  // You can add more fields here like address, industry, etc.
+}
 
 export interface Playlist {
   id: string;
@@ -45,7 +52,6 @@ export interface Song {
 
 export interface PlaybackLog {
   id: string;
-  // storeId: string; // Removed storeId
   playlistId: string;
   songId: string;
   timestamp: string; // ISO string
@@ -57,6 +63,22 @@ export interface PlaybackLog {
 const mockUsers: User[] = [
   { id: uuidv4(), email: 'user@example.com', passwordHash: 'password123', role: 'user' },
   { id: uuidv4(), email: 'admin@example.com', passwordHash: 'admin123', role: 'admin' },
+];
+
+const mockClients: Client[] = [
+  {
+    id: uuidv4(),
+    userId: mockUsers[0].id,
+    name: 'Café Central Ltda.',
+    contactEmail: 'contato@cafecentral.com.br',
+    contactPhone: '(11) 98765-4321',
+  },
+  {
+    id: uuidv4(),
+    userId: mockUsers[0].id,
+    name: 'Boutique Fashion',
+    contactEmail: 'fashion@boutique.com',
+  },
 ];
 
 const mockSongs: Song[] = [
@@ -111,11 +133,9 @@ const mockPlaylists: Playlist[] = [
   },
 ];
 
-// Removed mockStores data
-
 export const initialMyuzeState = {
   users: mockUsers,
-  // stores: mockStores, // Removed stores from initial state
+  clients: mockClients, // Added clients to initial state
   playlists: mockPlaylists,
   songs: mockSongs, // All available songs, including ads
   playbackLogs: [] as PlaybackLog[],
