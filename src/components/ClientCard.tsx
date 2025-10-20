@@ -16,6 +16,7 @@ import { Client } from '@/lib/data';
 import { toast } from 'sonner';
 import EditClientDialog from './EditClientDialog';
 import { Link } from 'react-router-dom'; // Importar Link
+import ConfirmationDialog from './ConfirmationDialog'; // Importar o novo componente
 
 interface ClientCardProps {
   client: Client;
@@ -25,10 +26,8 @@ const ClientCard = ({ client }: ClientCardProps) => {
   const { deleteClient, getClientUserByClientId } = useMyuze();
 
   const handleDelete = () => {
-    if (window.confirm(`Tem certeza que deseja excluir o cliente "${client.name}"?`)) {
-      deleteClient(client.id);
-      toast.success(`Cliente "${client.name}" foi excluído.`);
-    }
+    deleteClient(client.id);
+    toast.success(`Cliente "${client.name}" foi excluído.`);
   };
 
   return (
@@ -67,9 +66,16 @@ const ClientCard = ({ client }: ClientCardProps) => {
               <Edit className="h-5 w-5" />
             </Button>
           </EditClientDialog>
-          <Button variant="ghost" size="icon" onClick={handleDelete} className="text-red-400 hover:text-red-300">
-            <Trash2 className="h-5 w-5" />
-          </Button>
+          <ConfirmationDialog
+            title="Confirmar Exclusão de Cliente"
+            description={`Tem certeza que deseja excluir o cliente "${client.name}"? Esta ação não pode ser desfeita e removerá também a conta de login associada.`}
+            onConfirm={handleDelete}
+            confirmText="Excluir"
+          >
+            <Button variant="ghost" size="icon" className="text-red-400 hover:text-red-300">
+              <Trash2 className="h-5 w-5" />
+            </Button>
+          </ConfirmationDialog>
         </div>
       </CardHeader>
       <CardContent className="p-0 mt-4">

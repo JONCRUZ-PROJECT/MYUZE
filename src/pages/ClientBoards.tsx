@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
+import ConfirmationDialog from '@/components/ConfirmationDialog'; // Importar o novo componente
 
 const ClientBoards = () => {
   const { boards, playlists, currentUser, deleteBoard } = useMyuze();
@@ -27,10 +28,8 @@ const ClientBoards = () => {
   };
 
   const handleDeleteBoard = (boardId: string, boardName: string) => {
-    if (window.confirm(`Tem certeza que deseja excluir o quadro "${boardName}"?`)) {
-      deleteBoard(boardId);
-      toast.success(`Quadro "${boardName}" excluído.`);
-    }
+    deleteBoard(boardId);
+    toast.success(`Quadro "${boardName}" excluído.`);
   };
 
   const handleCopyPlayerLink = (boardId: string) => {
@@ -78,9 +77,16 @@ const ClientBoards = () => {
                       </DropdownMenuItem>
                     </EditBoardDialog>
                     <DropdownMenuSeparator className="bg-myuze-purple/50" />
-                    <DropdownMenuItem onClick={() => handleDeleteBoard(board.id, board.name)} className="text-red-400 cursor-pointer hover:bg-red-400/20 hover:text-red-300">
-                      <Trash2 className="mr-2 h-4 w-4" /> Excluir
-                    </DropdownMenuItem>
+                    <ConfirmationDialog
+                      title="Confirmar Exclusão de Quadro"
+                      description={`Tem certeza que deseja excluir o quadro "${board.name}"? Esta ação não pode ser desfeita.`}
+                      onConfirm={() => handleDeleteBoard(board.id, board.name)}
+                      confirmText="Excluir"
+                    >
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-400 cursor-pointer hover:bg-red-400/20 hover:text-red-300">
+                        <Trash2 className="mr-2 h-4 w-4" /> Excluir
+                      </DropdownMenuItem>
+                    </ConfirmationDialog>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>

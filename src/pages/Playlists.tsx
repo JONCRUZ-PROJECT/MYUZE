@@ -12,14 +12,13 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge'; // Import Badge component
+import ConfirmationDialog from '@/components/ConfirmationDialog'; // Importar o novo componente
 
 const Playlists = () => {
   const { playlists, deletePlaylist } = useMyuze();
 
   const handleDelete = (id: string, name: string) => {
-    if (window.confirm(`Tem certeza que deseja excluir a playlist "${name}"?`)) {
-      deletePlaylist(id);
-    }
+    deletePlaylist(id);
   };
 
   const formatTotalDuration = (songs: { duration: number }[]) => {
@@ -60,9 +59,16 @@ const Playlists = () => {
                       </DropdownMenuItem>
                     </EditPlaylistDialog>
                     <DropdownMenuSeparator className="bg-myuze-purple/50" />
-                    <DropdownMenuItem onClick={() => handleDelete(playlist.id, playlist.name)} className="text-red-400 cursor-pointer hover:bg-red-400/20 hover:text-red-300">
-                      <Trash2 className="mr-2 h-4 w-4" /> Excluir
-                    </DropdownMenuItem>
+                    <ConfirmationDialog
+                      title="Confirmar Exclusão de Playlist"
+                      description={`Tem certeza que deseja excluir a playlist "${playlist.name}"? Esta ação não pode ser desfeita.`}
+                      onConfirm={() => handleDelete(playlist.id, playlist.name)}
+                      confirmText="Excluir"
+                    >
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-400 cursor-pointer hover:bg-red-400/20 hover:text-red-300">
+                        <Trash2 className="mr-2 h-4 w-4" /> Excluir
+                      </DropdownMenuItem>
+                    </ConfirmationDialog>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>

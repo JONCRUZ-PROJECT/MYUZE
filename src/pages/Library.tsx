@@ -13,9 +13,10 @@ import { toast } from 'sonner';
 import { useMyuze } from '@/context/MyuzeContext';
 import { Song } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
+import ConfirmationDialog from '@/components/ConfirmationDialog'; // Importar o novo componente
 
 const Library = () => {
-  const { songs, addMediaItem } = useMyuze();
+  const { songs, addMediaItem } = useMyuze(); // Removido deleteMediaItem, pois a exclusão é simulada
   const [songFile, setSongFile] = useState<File | null>(null);
   const [songTitle, setSongTitle] = useState<string>('');
   const [songMood, setSongMood] = useState<string>('');
@@ -158,7 +159,6 @@ const Library = () => {
       audioRef.current = null;
       setPlayingSongId(null);
     }
-    toast.info(`Simulando exclusão de "${title}" (ID: ${id})...`);
     // In a real app, you'd update the 'songs' state here to remove the item
     // For now, we'll just show a success toast.
     toast.success(`"${title}" excluído (simulado) com sucesso!`);
@@ -311,9 +311,16 @@ const Library = () => {
                         <Button variant="ghost" size="icon" onClick={() => handlePlayPause(song)} className="text-myuze-purple hover:text-myuze-purple/80">
                           {playingSongId === song.id ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(song.id, song.title)} className="text-red-400 hover:text-red-300">
-                          <Trash2 className="h-5 w-5" />
-                        </Button>
+                        <ConfirmationDialog
+                          title="Confirmar Exclusão de Música"
+                          description={`Tem certeza que deseja excluir a música "${song.title}"? Esta ação não pode ser desfeita.`}
+                          onConfirm={() => handleDelete(song.id, song.title)}
+                          confirmText="Excluir"
+                        >
+                          <Button variant="ghost" size="icon" className="text-red-400 hover:text-red-300">
+                            <Trash2 className="h-5 w-5" />
+                          </Button>
+                        </ConfirmationDialog>
                       </div>
                     </div>
                   ))}
@@ -445,9 +452,16 @@ const Library = () => {
                         <Button variant="ghost" size="icon" onClick={() => handlePlayPause(vo)} className="text-myuze-purple hover:text-myuze-purple/80">
                           {playingSongId === vo.id ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(vo.id, vo.title)} className="text-red-400 hover:text-red-300">
-                          <Trash2 className="h-5 w-5" />
-                        </Button>
+                        <ConfirmationDialog
+                          title="Confirmar Exclusão de Locução"
+                          description={`Tem certeza que deseja excluir a locução "${vo.title}"? Esta ação não pode ser desfeita.`}
+                          onConfirm={() => handleDelete(vo.id, vo.title)}
+                          confirmText="Excluir"
+                        >
+                          <Button variant="ghost" size="icon" className="text-red-400 hover:text-red-300">
+                            <Trash2 className="h-5 w-5" />
+                          </Button>
+                        </ConfirmationDialog>
                       </div>
                     </div>
                   ))}
