@@ -14,13 +14,14 @@ import { User, Mail, Phone, MoreVertical, Edit, Trash2, Building } from 'lucide-
 import { useMyuze } from '@/context/MyuzeContext';
 import { Client } from '@/lib/data';
 import { toast } from 'sonner';
+import EditClientDialog from './EditClientDialog'; // Importar o novo componente
 
 interface ClientCardProps {
   client: Client;
 }
 
 const ClientCard = ({ client }: ClientCardProps) => {
-  const { deleteClient, updateClient } = useMyuze();
+  const { deleteClient } = useMyuze();
 
   const handleDelete = () => {
     if (window.confirm(`Tem certeza que deseja excluir o cliente "${client.name}"?`)) {
@@ -29,20 +30,15 @@ const ClientCard = ({ client }: ClientCardProps) => {
     }
   };
 
-  const handleEdit = () => {
-    toast.info(`Funcionalidade de edição para o cliente "${client.name}" será implementada.`);
-    // This would typically open an EditClientDialog
-  };
-
   return (
     <Card className="bg-myuze-gray-translucent text-myuze-white border-none shadow-xl backdrop-blur-sm p-6">
       <CardHeader className="flex flex-row items-start justify-between p-0 mb-4">
         <div className="flex items-center mb-4">
           {client.logoUrl ? (
-            <img src={client.logoUrl} alt={`${client.name} Logo`} className="w-16 h-16 object-contain rounded-md mr-4 border border-myuze-purple/50 p-1" />
+            <img src={client.logoUrl} alt={`${client.name} Logo`} className="w-20 h-20 object-contain rounded-md mr-4 border border-myuze-purple/50 p-1" />
           ) : (
-            <div className="w-16 h-16 bg-myuze-black/50 rounded-md flex items-center justify-center mr-4 border border-myuze-purple/50">
-              <Building className="h-8 w-8 text-gray-400" />
+            <div className="w-20 h-20 bg-myuze-black/50 rounded-md flex items-center justify-center mr-4 border border-myuze-purple/50">
+              <Building className="h-10 w-10 text-gray-400" />
             </div>
           )}
           <div className="flex flex-col">
@@ -66,9 +62,11 @@ const ClientCard = ({ client }: ClientCardProps) => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="bg-myuze-black border-myuze-purple text-myuze-white">
-            <DropdownMenuItem onClick={handleEdit} className="cursor-pointer hover:bg-myuze-purple/20">
-              <Edit className="mr-2 h-4 w-4" /> Editar Cliente
-            </DropdownMenuItem>
+            <EditClientDialog client={client}> {/* Envolvendo o DropdownMenuItem com o EditClientDialog */}
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer hover:bg-myuze-purple/20">
+                <Edit className="mr-2 h-4 w-4" /> Editar Cliente
+              </DropdownMenuItem>
+            </EditClientDialog>
             <DropdownMenuSeparator className="bg-myuze-purple/50" />
             <DropdownMenuItem onClick={handleDelete} className="text-red-400 cursor-pointer hover:bg-red-400/20 hover:text-red-300">
               <Trash2 className="mr-2 h-4 w-4" /> Excluir Cliente
