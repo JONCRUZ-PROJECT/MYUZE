@@ -26,7 +26,7 @@ const formatDuration = (seconds: number) => {
 };
 
 const EditPlaylistDialog = ({ children, playlist }: EditPlaylistDialogProps) => {
-  const { songs, updatePlaylist } = useMyuze();
+  const { songs, updatePlaylist, clients, currentUser } = useMyuze();
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState(playlist.name);
   const [mood, setMood] = useState(playlist.mood);
@@ -37,6 +37,10 @@ const EditPlaylistDialog = ({ children, playlist }: EditPlaylistDialogProps) => 
   const [selectedMusicIds, setSelectedMusicIds] = useState<string[]>(playlist.songs.filter(s => !s.isAd).map(s => s.id));
   const [selectedVoiceoverIds, setSelectedVoiceoverIds] = useState<string[]>(playlist.songs.filter(s => s.isAd).map(s => s.id));
   const [adIntervalMinutes, setAdIntervalMinutes] = useState<number>(playlist.adIntervalMinutes || 15);
+  const [assignedClientId, setAssignedClientId] = useState<string | undefined>(() => {
+    const client = clients.find(c => c.clientUserId === playlist.userId);
+    return client ? client.id : undefined;
+  }); // Novo estado para o cliente atribuído
 
   const availableMusic = songs.filter(s => !s.isAd);
   const availableVoiceovers = songs.filter(s => s.isAd);
@@ -53,8 +57,12 @@ const EditPlaylistDialog = ({ children, playlist }: EditPlaylistDialogProps) => 
       setSelectedMusicIds(playlist.songs.filter(s => !s.isAd).map(s => s.id));
       setSelectedVoiceoverIds(playlist.songs.filter(s => s.isAd).map(s => s.id));
       setAdIntervalMinutes(playlist.adIntervalMinutes || 15);
+      setAssignedClientId(() => {
+        const client = clients.find(c => c.clientUserId === playlist.userId);
+        return client ? client.id : undefined;
+      });
     }
-  }, [isOpen, playlist]);
+  }, [isOpen, playlist, clients]);
 
   const handleCoverFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -131,7 +139,18 @@ const EditPlaylistDialog = ({ children, playlist }: EditPlaylistDialogProps) => 
       adIntervalMinutes: adIntervalMinutes,
     };
 
-    updatePlaylist(playlist.id, updatedPlaylistData, finalSongs.map(s => s.id));
+    let targetUserId: string | undefined;
+    if (currentUser?.role === 'admin' || currentUser?.role === 'user') {
+        if (assignedClientId) {
+            targetUserId = clients.find(c => c.id === assignedClientId)?.clientUserId;
+        } else {
+            targetUserId = undefined; // Explicitly set to undefined if unassigned by admin
+        }
+    } else if (currentUser?.role === 'client') {
+        targetUserId = currentUser.id; // Client always assigns to themselves
+    }
+
+    updatePlaylist(playlist.id, updatedPlaylistData, finalSongs.map(s => s.id), targetUserId);
     setIsOpen(false);
   };
 
@@ -223,6 +242,27 @@ const EditPlaylistDialog = ({ children, playlist }: EditPlaylistDialogProps) => 
             </div>
           </div>
 
+          {(currentUser?.role === 'admin' || currentUser?.role === 'user') && (
+            <div className="space-y-2">
+              <Label htmlFor="assign-client" className="text-myuze-white">
+                Atribuir ao Cliente (Opcional)
+              </Label>
+              <Select value={assignedClientId} onValueChange={setAssignedClientId}>
+                <SelectTrigger id="assign-client" className="bg-myuze-black/50 border-myuze-purple text-myuze-white">
+                  <SelectValue placeholder="Nenhum cliente" />
+                </SelectTrigger>
+                <SelectContent className="bg-myuze-black border-myuze-purple text-myuze-white">
+                  <SelectItem value="undefined">Nenhum cliente</SelectItem>
+                  {clients.map(client => (
+                    <SelectItem key={client.id} value={client.id}>
+                      {client.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div>
               <Label className="text-myuze-white mb-2 block">Músicas na Playlist ({selectedMusicIds.length} selecionadas)</Label>
@@ -295,7 +335,7 @@ const EditPlaylistDialog = ({ children, playlist }: EditPlaylistDialogProps) => 
             <X className="mr-2 h-4 w-4" /> Cancelar
           </Button>
           <Button type="submit" onClick={handleSubmit} className="bg-myuze-purple hover:bg-myuze-purple/80 text-myuze-white">
-            Salvar
+            Salvar Alterações
           </Button>
         </DialogFooter>
       </DialogContent>

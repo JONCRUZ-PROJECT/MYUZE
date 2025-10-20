@@ -19,8 +19,8 @@ interface MyuzeContextType {
   logout: () => void;
   playerLogin: (boardId: string, username: string, passwordHash: string) => boolean;
   playerLogout: () => void;
-  addPlaylist: (playlist: Omit<Playlist, 'id' | 'userId' | 'songs'>, selectedSongIds: string[]) => void;
-  updatePlaylist: (id: string, updatedPlaylist: Omit<Playlist, 'id' | 'userId' | 'songs'>, selectedSongIds: string[]) => void;
+  addPlaylist: (playlist: Omit<Playlist, 'id' | 'userId' | 'songs'>, selectedSongIds: string[], assignToUserId?: string) => void;
+  updatePlaylist: (id: string, updatedPlaylist: Omit<Playlist, 'id' | 'userId' | 'songs'>, selectedSongIds: string[], assignToUserId?: string) => void;
   deletePlaylist: (id: string) => void;
   addClient: (clientData: Omit<Client, 'id' | 'userId' | 'clientUserId'>) => void;
   updateClient: (id: string, updatedClientData: Partial<Client>, clientLoginEmail?: string, clientLoginPassword?: string) => void;
@@ -189,7 +189,7 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
     return songs.filter(song => ids.includes(song.id));
   };
 
-  const addPlaylist = (playlistData: Omit<Playlist, 'id' | 'userId' | 'songs'>, selectedSongIds: string[]) => {
+  const addPlaylist = (playlistData: Omit<Playlist, 'id' | 'userId' | 'songs'>, selectedSongIds: string[], assignToUserId?: string) => {
     if (!currentUser) {
       toast.error('Você precisa estar logado para criar uma playlist.');
       return;
@@ -197,18 +197,18 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
     const newPlaylist: Playlist = {
       ...playlistData,
       id: uuidv4(),
-      userId: currentUser.id,
+      userId: assignToUserId || currentUser.id, // Use assigned ID or current user's ID
       songs: getSongsByIds(selectedSongIds),
     };
     setPlaylists(prev => [...prev, newPlaylist]);
     toast.success(`Playlist "${newPlaylist.name}" criada!`);
   };
 
-  const updatePlaylist = (id: string, updatedPlaylistData: Omit<Playlist, 'id' | 'userId' | 'songs'>, selectedSongIds: string[]) => {
+  const updatePlaylist = (id: string, updatedPlaylistData: Omit<Playlist, 'id' | 'userId' | 'songs'>, selectedSongIds: string[], assignToUserId?: string) => {
     setPlaylists(prev =>
       prev.map(p =>
         p.id === id
-          ? { ...p, ...updatedPlaylistData, songs: getSongsByIds(selectedSongIds) }
+          ? { ...p, ...updatedPlaylistData, userId: assignToUserId !== undefined ? assignToUserId : p.userId, songs: getSongsByIds(selectedSongIds) } // Update userId if provided, otherwise keep existing
           : p
       )
     );
@@ -370,9 +370,6 @@ export const MyuzeProvider = ({ children }: { children: ReactNode }) => {
         addPlaylist,
         updatePlaylist,
         deletePlaylist,
-        addClient,
-        updateClient,
-        deleteClient,
         getClientById,
         getPlaylistById,
         getSongsByIds,

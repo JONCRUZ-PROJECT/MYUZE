@@ -25,7 +25,7 @@ const formatDuration = (seconds: number) => {
 };
 
 const CreatePlaylistDialog = ({ children }: CreatePlaylistDialogProps) => {
-  const { songs, addPlaylist } = useMyuze();
+  const { songs, addPlaylist, clients, currentUser } = useMyuze();
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState('');
   const [mood, setMood] = useState('');
@@ -36,6 +36,7 @@ const CreatePlaylistDialog = ({ children }: CreatePlaylistDialogProps) => {
   const [selectedMusicIds, setSelectedMusicIds] = useState<string[]>([]);
   const [selectedVoiceoverIds, setSelectedVoiceoverIds] = useState<string[]>([]);
   const [adIntervalMinutes, setAdIntervalMinutes] = useState<number>(15);
+  const [assignedClientId, setAssignedClientId] = useState<string | undefined>(undefined); // Novo estado para o cliente atribuído
 
   const availableMusic = songs.filter(s => !s.isAd);
   const availableVoiceovers = songs.filter(s => s.isAd);
@@ -115,7 +116,16 @@ const CreatePlaylistDialog = ({ children }: CreatePlaylistDialogProps) => {
       adIntervalMinutes: adIntervalMinutes,
     };
 
-    addPlaylist(newPlaylistData, finalSongs.map(s => s.id)); // Pass the IDs of the interleaved songs
+    let targetUserId: string | undefined;
+    if (currentUser?.role === 'admin' || currentUser?.role === 'user') {
+        if (assignedClientId) {
+            targetUserId = clients.find(c => c.id === assignedClientId)?.clientUserId;
+        }
+    } else if (currentUser?.role === 'client') {
+        targetUserId = currentUser.id; // Client always assigns to themselves
+    }
+
+    addPlaylist(newPlaylistData, finalSongs.map(s => s.id), targetUserId); // Pass the IDs of the interleaved songs and targetUserId
     setIsOpen(false);
     // Reset form fields
     setName('');
@@ -127,6 +137,7 @@ const CreatePlaylistDialog = ({ children }: CreatePlaylistDialogProps) => {
     setSelectedMusicIds([]);
     setSelectedVoiceoverIds([]);
     setAdIntervalMinutes(15);
+    setAssignedClientId(undefined); // Reset assigned client
   };
 
   return (
@@ -216,6 +227,27 @@ const CreatePlaylistDialog = ({ children }: CreatePlaylistDialogProps) => {
               )}
             </div>
           </div>
+
+          {(currentUser?.role === 'admin' || currentUser?.role === 'user') && (
+            <div className="space-y-2">
+              <Label htmlFor="assign-client" className="text-myuze-white">
+                Atribuir ao Cliente (Opcional)
+              </Label>
+              <Select value={assignedClientId} onValueChange={setAssignedClientId}>
+                <SelectTrigger id="assign-client" className="bg-myuze-black/50 border-myuze-purple text-myuze-white">
+                  <SelectValue placeholder="Nenhum cliente" />
+                </SelectTrigger>
+                <SelectContent className="bg-myuze-black border-myuze-purple text-myuze-white">
+                  <SelectItem value="undefined">Nenhum cliente</SelectItem>
+                  {clients.map(client => (
+                    <SelectItem key={client.id} value={client.id}>
+                      {client.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div>
